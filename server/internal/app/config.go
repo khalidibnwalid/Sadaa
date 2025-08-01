@@ -18,6 +18,7 @@ type Config struct {
 	ShutdownTimeout time.Duration
 
 	Environment string
+	DatabaseURL string
 }
 
 func DefaultConfig() *Config {
@@ -30,6 +31,7 @@ func DefaultConfig() *Config {
 		ShutdownTimeout: time.Duration(getIntEnv("SHUTDOWN_TIMEOUT", 30)) * time.Second,
 
 		Environment: getEnv("ENVIRONMENT", "development"),
+		DatabaseURL: mustGetEnv("DATABASE_URL"),
 	}
 }
 
@@ -47,4 +49,12 @@ func getIntEnv(key string, fallback int) int {
 		}
 	}
 	return fallback
+}
+
+func mustGetEnv(key string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		panic("Environment variable " + key + " is not set")
+	}
+	return value
 }
