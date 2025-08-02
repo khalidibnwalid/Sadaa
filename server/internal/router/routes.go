@@ -15,7 +15,7 @@ import (
 	"github.com/vektah/gqlparser/v2/ast"
 )
 
-func (r *Router) SetupRoutes() {
+func (r *Router) SetupRoutes(routerCtx *Context) {
 
 	r.Use(
 		middleware.Logger(r.Server.Logger),
@@ -26,24 +26,27 @@ func (r *Router) SetupRoutes() {
 		),
 		middleware.SecurityHeaders(),
 	)
+	resolver := &resolvers.Resolver{
+		DB: routerCtx.DB,
+	}
 
-	r.Group(func(r *Router) {
-		// Health check endpoint
-		r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("pong"))
-		})
-
-		r.HandleFunc("/gql", graphqlHandler().ServeHTTP)
-		if r.Server.Config.Environment == "development" {
-			r.Handle("/gql/pg", playground.Handler("GraphQL playground", "/query"))
-		}
-
+	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("pong"))
 	})
+
+	// Authed routes
+	r.Group(func(r *Router) {
+		r.Handle("/gql", graphqlHandler(resolver))
+	})
+
+	if r.Server.Config.Environment == "development" {
+		r.Handle("/gql/pg", playground.Handler("GraphQL playground", "/gql"))
+	}
 }
 
-func graphqlHandler() http.Handler {
-	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: &resolvers.Resolver{}}))
+func graphqlHandler(resolver *resolvers.Resolver) http.Handler {
+	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: resolver}))
 
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.GET{})

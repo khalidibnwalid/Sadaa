@@ -1,6 +1,7 @@
 package router
 
-type Context struct {
-	
-}
+import "github.com/khalidibnwalid/sadaa/server/internal/db"
 
+type Context struct {
+	DB *db.Queries
+}

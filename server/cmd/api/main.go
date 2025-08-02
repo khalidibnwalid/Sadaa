@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/jackc/pgx/v5"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/khalidibnwalid/sadaa/server/internal/app"
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
@@ -21,25 +20,21 @@ func main() {
 
 	s := app.NewServer(config, logger)
 	r := router.NewRouter(s)
-	r.SetupRoutes()
-	//
 
+	//
+	logger.Println("Connecting to database...")
+	conn := app.ConnectDB(logger, ctx, config)
+	defer conn.Close(ctx)
+	app.PingDB(logger, ctx, conn)
+
+	//
 	logger.Println("Starting Sadaa API server...")
 
-	conn, err := pgx.Connect(ctx, config.DatabaseURL)
-	if err != nil {
-		logger.Fatal("Failed to connect to database:", err)
-	}
-	defer conn.Close(ctx)
-
-	db := db.New(conn)
-	val, err := db.PingDB(ctx)
-	if err != nil {
-		logger.Fatal("Failed to ping database:", err)
-	}
-	logger.Println("Database connection successful, ping result:", val)
-
+	r.SetupRoutes(&router.Context{
+		DB: db.New(conn),
+	})
 	//
+
 	if err := r.Start(); err != nil {
 		logger.Fatal("Failed to start server:", err)
 	}
