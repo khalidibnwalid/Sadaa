@@ -5,10 +5,11 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/joho/godotenv/autoload"
 	"github.com/khalidibnwalid/sadaa/server/internal/app"
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/router"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 func main() {
@@ -23,15 +24,14 @@ func main() {
 
 	//
 	logger.Println("Connecting to database...")
-	conn := app.ConnectDB(logger, ctx, config)
-	defer conn.Close(ctx)
-	app.PingDB(logger, ctx, conn)
+	pool := app.NewDBPool(logger, ctx, config)
+	defer pool.Close()
 
 	//
 	logger.Println("Starting Sadaa API server...")
 
 	r.SetupRoutes(&router.Context{
-		DB: db.New(conn),
+		DB: db.New(pool),
 	})
 	//
 

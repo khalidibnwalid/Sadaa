@@ -17,6 +17,9 @@ const (
 	defaultWriteTimeout    = 10
 	defaultIdleTimeout     = 120
 	defaultShutdownTimeout = 30
+
+	defaultMinConns = 5
+	defaultMaxConns = 30
 )
 
 type Config struct {
@@ -30,7 +33,10 @@ type Config struct {
 
 	Environment   string
 	IsDevelopment bool
-	DatabaseURL   string
+
+	DBURL      string
+	DBMaxConns int32
+	DBMinConns int32
 }
 
 func DefaultConfig() *Config {
@@ -44,7 +50,10 @@ func DefaultConfig() *Config {
 
 		Environment:   getEnv("ENVIRONMENT", EnvDevelopment),
 		IsDevelopment: getEnv("ENVIRONMENT", EnvDevelopment) == EnvDevelopment,
-		DatabaseURL:   mustGetEnv("DATABASE_URL"),
+
+		DBURL:      mustGetEnv("DB_URL"),
+		DBMinConns: int32(getIntEnv("DB_MIN_CONNS", defaultMinConns)),
+		DBMaxConns: int32(getIntEnv("DB_MAX_CONNS", defaultMaxConns)),
 	}
 }
 
