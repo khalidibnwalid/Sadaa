@@ -1,0 +1,32 @@
+scalar Time
+scalar UUID
+
+type User {
+  id: UUID!
+  username: String
+  email: String
+  avatarUrl: String
+  createdAt: Time
+  updatedAt: Time
+}
+
+input signupInput {
+  username: String!
+  email: String!
+  password: String! 
+}
+
+input loginInput {
+  email: String
+  username: String
+  password: String!
+}
+
+type Mutation {
+  signup(input: signupInput!): User
+  login(input: loginInput!): User
+}
+
+type Query {
+  getUser(id: UUID!): User
+}

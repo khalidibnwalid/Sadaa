@@ -8,6 +8,17 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
+const (
+	EnvDevelopment = "development"
+	// EnvProduction  = "production"
+
+	defaultPort            = "8080"
+	defaultReadTimeout     = 10
+	defaultWriteTimeout    = 10
+	defaultIdleTimeout     = 120
+	defaultShutdownTimeout = 30
+)
+
 type Config struct {
 	Port string
 	Host string
@@ -17,21 +28,23 @@ type Config struct {
 	IdleTimeout     time.Duration
 	ShutdownTimeout time.Duration
 
-	Environment string
-	DatabaseURL string
+	Environment   string
+	IsDevelopment bool
+	DatabaseURL   string
 }
 
 func DefaultConfig() *Config {
 	return &Config{
-		Port: getEnv("PORT", "8080"),
+		Port: getEnv("PORT", defaultPort),
 
-		ReadTimeout:     time.Duration(getIntEnv("READ_TIMEOUT", 10)) * time.Second,
-		WriteTimeout:    time.Duration(getIntEnv("WRITE_TIMEOUT", 10)) * time.Second,
-		IdleTimeout:     time.Duration(getIntEnv("IDLE_TIMEOUT", 120)) * time.Second,
-		ShutdownTimeout: time.Duration(getIntEnv("SHUTDOWN_TIMEOUT", 30)) * time.Second,
+		ReadTimeout:     time.Duration(getIntEnv("READ_TIMEOUT", defaultReadTimeout)) * time.Second,
+		WriteTimeout:    time.Duration(getIntEnv("WRITE_TIMEOUT", defaultWriteTimeout)) * time.Second,
+		IdleTimeout:     time.Duration(getIntEnv("IDLE_TIMEOUT", defaultIdleTimeout)) * time.Second,
+		ShutdownTimeout: time.Duration(getIntEnv("SHUTDOWN_TIMEOUT", defaultShutdownTimeout)) * time.Second,
 
-		Environment: getEnv("ENVIRONMENT", "development"),
-		DatabaseURL: mustGetEnv("DATABASE_URL"),
+		Environment:   getEnv("ENVIRONMENT", EnvDevelopment),
+		IsDevelopment: getEnv("ENVIRONMENT", EnvDevelopment) == EnvDevelopment,
+		DatabaseURL:   mustGetEnv("DATABASE_URL"),
 	}
 }
 
