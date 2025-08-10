@@ -9,24 +9,92 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/graph"
 	graph_models "github.com/khalidibnwalid/sadaa/server/internal/graph/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/models"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // Signup is the resolver for the signup field.
 func (r *mutationResolver) Signup(ctx context.Context, input graph_models.SignupInput) (*db.User, error) {
-	panic(fmt.Errorf("not implemented: Signup - signup"))
+	user := models.NewUser().
+		WithPassword(input.Password)
+	err := user.WithEmail(input.Email)
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrInvalidEmailAddress)
+	}
+
+	//check if email is used
+	if _, err = r.DB.GetUserByEmail(ctx, user.User.Email); err == nil {
+		return nil, gqlerror.Wrap(ErrEmailExists)
+	}
+
+	// check if username is used
+	user.Username = input.Username
+	if _, err = r.DB.GetUserByUsername(ctx, user.Username); err == nil {
+		return nil, gqlerror.Wrap(ErrUsernameExists)
+	}
+
+
+	usr, err := r.DB.CreateUser(ctx, db.CreateUserParams{
+		Email:          user.User.Email,
+		Username:       user.User.Username,
+		HashedPassword: user.User.HashedPassword,
+	})
+
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+
+	// Explicitly did this to ignore HashedPassword
+	return &db.User{
+		ID:        usr.ID,
+		Email:     usr.Email,
+		Username:  usr.Username,
+		CreatedAt: usr.CreatedAt,
+		UpdatedAt: usr.UpdatedAt,
+	}, nil
 }
 
 // Login is the resolver for the login field.
 func (r *mutationResolver) Login(ctx context.Context, input graph_models.LoginInput) (*db.User, error) {
-	panic(fmt.Errorf("not implemented: Login - login"))
+	usr := models.NewUser()
+	err := usr.WithEmail(input.Credential)
+
+	// if Error parsing to mail, then its a username
+	if err != nil {
+		dbusr, err := r.DB.GetUserByUsername(ctx, input.Credential)
+		if err != nil {
+			return nil, gqlerror.Wrap(ErrUserNotFound)
+		}
+		usr = models.NewUser(&dbusr)
+	} else {
+		dbusr, err := r.DB.GetUserByEmail(ctx, input.Credential)
+		if err != nil {
+			return nil, gqlerror.Wrap(ErrUserNotFound)
+		}
+		usr = models.NewUser(&dbusr)
+	}
+
+	// Verify the password
+	err = usr.VerifyPassword(input.Password)
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrInvalidPassword)
+	}
+
+	// Explicitly did this to ignore HashedPassword
+	return &db.User{
+		ID:        usr.ID,
+		Email:     usr.Email,
+		Username:  usr.Username,
+		CreatedAt: usr.CreatedAt,
+		UpdatedAt: usr.UpdatedAt,
+	}, nil
 }
 
 // GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context, id uuid.UUID) (*db.User, error) {
+func (r *queryResolver) GetUser(ctx context.Context) (*db.User, error) {
 	panic(fmt.Errorf("not implemented: GetUser - getUser"))
 }
 

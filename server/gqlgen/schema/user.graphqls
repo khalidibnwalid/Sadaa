@@ -2,7 +2,7 @@ scalar Time
 scalar UUID
 
 type User {
-  id: UUID!
+  id: UUID
   username: String
   email: String
   avatarUrl: String
@@ -17,8 +17,7 @@ input signupInput {
 }
 
 input loginInput {
-  email: String
-  username: String
+  credential: String! # email or username
   password: String!
 }
 
@@ -28,5 +27,5 @@ type Mutation {
 }
 
 type Query {
-  getUser(id: UUID!): User
+  getUser: User
 }

@@ -9,9 +9,8 @@ type Query struct {
 }
 
 type LoginInput struct {
-	Email    *string `json:"email,omitempty"`
-	Username *string `json:"username,omitempty"`
-	Password string  `json:"password"`
+	Credential string `json:"credential"`
+	Password   string `json:"password"`
 }
 
 type SignupInput struct {
