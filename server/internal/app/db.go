@@ -7,26 +7,29 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-
-func NewDBPool(logger *log.Logger, ctx context.Context, config *Config) *pgxpool.Pool {
-	poolConfig, err := pgxpool.ParseConfig(config.DBURL)
+func NewDBPool(ctx context.Context, config *DBConfig, logger ...*log.Logger) *pgxpool.Pool {
+	_logger := log.Default()
+	if len(logger) > 0 {
+		_logger = logger[0]
+	}
+	poolConfig, err := pgxpool.ParseConfig(config.URL)
 	if err != nil {
-		logger.Panic("Failed to parse database URL:", err)
+		_logger.Panic("Failed to parse database URL:", err)
 	}
 
-	poolConfig.MaxConns = config.DBMaxConns
-	poolConfig.MinConns = config.DBMinConns
+	poolConfig.MaxConns = config.MaxConns
+	poolConfig.MinConns = config.MinConns
 
 	pool, err := pgxpool.NewWithConfig(ctx, poolConfig)
 	if err != nil {
-		logger.Panic("Failed to connect to database:", err)
+		_logger.Panic("Failed to connect to database:", err)
 	}
 
 	if err := pool.Ping(ctx); err != nil {
-		logger.Panic("Failed to ping database:", err)
+		_logger.Panic("Failed to ping database:", err)
 	}
 
-	logger.Println("Database connection pool established successfully")
+	_logger.Println("Database connection pool established successfully")
 	return pool
 }
 

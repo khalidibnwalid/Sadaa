@@ -45,9 +45,3 @@ func (u *User) WithEmail(email string) error {
 	u.User.Email = mailAddr.Address
 	return nil
 }
-
-// Create user in the database
-func (u *User) CreateUser() error {
-	
-	return nil
-}

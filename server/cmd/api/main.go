@@ -24,7 +24,7 @@ func main() {
 
 	//
 	logger.Println("Connecting to database...")
-	pool := app.NewDBPool(logger, ctx, config)
+	pool := app.NewDBPool(ctx, config.DB, logger)
 	defer pool.Close()
 
 	//
