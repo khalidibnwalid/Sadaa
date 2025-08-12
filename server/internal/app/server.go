@@ -2,18 +2,19 @@ package app
 
 import (
 	"context"
-	"log"
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 type Server struct {
 	Config     *Config
 	Mux        *http.ServeMux
 	HttpServer *http.Server
-	Logger     *log.Logger
+	Logger     *zap.Logger
 }
 
-func NewServer(config *Config, logger *log.Logger) *Server {
+func NewServer(config *Config, logger *zap.Logger) *Server {
 	if config == nil {
 		config = DefaultConfig()
 	}
@@ -42,8 +43,11 @@ func (s *Server) Start(handler http.Handler) error {
 		IdleTimeout:  s.Config.IdleTimeout,
 	}
 
-	s.Logger.Printf("Starting server on %s:%s", s.Config.Host, s.Config.Port)
-	s.Logger.Printf("Environment: %s", s.Config.Environment)
+	s.Logger.Info("Starting server",
+		zap.String("host", s.Config.Host),
+		zap.String("port", s.Config.Port),
+	)
+	s.Logger.Info("Environment", zap.String("env", s.Config.Environment))
 
 	return s.HttpServer.ListenAndServe()
 }

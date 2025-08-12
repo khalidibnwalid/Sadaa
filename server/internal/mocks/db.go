@@ -27,13 +27,17 @@ func GetDBPool(t *testing.T) *pgxpool.Pool {
 	// we have no way to guarantee that all tests will close the pool when others are using it,
 	// thus we will track all open connections to the pool via 'refCount'
 	mu.Lock()
+	var err error
 	if pool == nil {
 		config := &app.DBConfig{
 			URL:      uri,
 			MaxConns: 10,
 			MinConns: 1,
 		}
-		pool = app.NewDBPool(context.Background(), config)
+		pool, err = app.NewDBPool(context.Background(), config)
+		if err != nil {
+			t.Fatal(err)
+		}
 		// TODO: database migraition logic
 	}
 	refCount++

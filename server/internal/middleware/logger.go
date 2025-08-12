@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 // override the ResponseWriter to capture the status code
@@ -18,7 +19,8 @@ func (rw *responseWriter) WriteHeader(code int) {
 	rw.ResponseWriter.WriteHeader(code)
 }
 
-func Logger(logger *log.Logger) func(next http.Handler) http.Handler {
+// logs HTTP requests
+func Logger(logger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
@@ -29,13 +31,18 @@ func Logger(logger *log.Logger) func(next http.Handler) http.Handler {
 			next.ServeHTTP(ww, r)
 
 			duration := time.Since(start)
-			logger.Printf("%s %s %d %v %s",
-				r.Method,
-				r.URL.Path,
-				ww.statusCode,
-				duration,
-				r.RemoteAddr,
+			logger.Info("HTTP request",
+				zap.String("method", r.Method),
+				zap.String("path", r.URL.Path),
+				zap.Int("status", ww.statusCode),
+				zap.Duration("duration", duration),
+				zap.String("remote_addr", r.RemoteAddr),
 			)
 		})
 	}
+}
+
+// NewZapLogger initializes a Zap logger (production config)
+func NewZapLogger() (*zap.Logger, error) {
+	return zap.NewProduction()
 }

@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"log"
-	"os"
+
+	"go.uber.org/zap"
 
 	"github.com/khalidibnwalid/sadaa/server/internal/app"
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
@@ -14,21 +14,38 @@ import (
 
 func main() {
 	ctx := context.Background()
+	config := app.DefaultConfig()
 
 	//
-	logger := log.New(os.Stdout, "[SADAA-API] ", log.LstdFlags|log.Lshortfile)
-	config := app.DefaultConfig()
+	var (
+		logger *zap.Logger
+		err    error
+	)
+	if config.IsDevelopment {
+		logger, err = zap.NewDevelopment()
+	} else {
+		logger, err = zap.NewProduction()
+	}
+
+	if err != nil {
+		panic("failed to initialize zap logger: " + err.Error())
+	}
+	defer logger.Sync()
 
 	s := app.NewServer(config, logger)
 	r := router.NewRouter(s)
 
 	//
-	logger.Println("Connecting to database...")
-	pool := app.NewDBPool(ctx, config.DB, logger)
+	logger.Info("Connecting to database...")
+	pool, err := app.NewDBPool(ctx, config.DB)
+	if err != nil {
+		logger.Fatal("Failed to connect to database", zap.Error(err))
+	}
+
 	defer pool.Close()
 
 	//
-	logger.Println("Starting Sadaa API server...")
+	logger.Info("Starting Sadaa API server...")
 
 	r.SetupRoutes(&router.Context{
 		DB: db.New(pool),
@@ -36,6 +53,6 @@ func main() {
 	//
 
 	if err := r.Start(); err != nil {
-		logger.Fatal("Failed to start server:", err)
+		logger.Fatal("Failed to start server", zap.Error(err))
 	}
 }
