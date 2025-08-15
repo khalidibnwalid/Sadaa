@@ -1,12 +1,17 @@
 package resolvers_test
 
 import (
+	"context"
+	"fmt"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/99designs/gqlgen/client"
 	"github.com/khalidibnwalid/sadaa/server/internal/crypto"
+	"github.com/khalidibnwalid/sadaa/server/internal/middleware"
 	"github.com/khalidibnwalid/sadaa/server/internal/mocks"
 	"github.com/khalidibnwalid/sadaa/server/internal/resolvers"
+	"github.com/khalidibnwalid/sadaa/server/internal/services/auth"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,12 +40,16 @@ func TestUserLogin(t *testing.T) {
 				}
 				`
 
+		// to capture header writing and mocking it in a ctx
+		rw := httptest.NewRecorder()
+		ctx := context.WithValue(t.Context(), middleware.ResponseWriterCtxKey, rw)
+
 		err := gql.Client.Post(query, &resp, client.Var("input", map[string]string{
 			"credential": user.Email,
 			"password":   user.Password,
-		}))
+		}), gql.WithContext(ctx))
 
-		t.Log(resp)
+		assert.Contains(t, rw.Header().Values("Set-Cookie")[0], fmt.Sprintf("%s=Bearer ", auth.AuthCookieName))
 		assert.NoError(t, err)
 		assert.ObjectsAreEqual(resp.Login, user.User)
 	})
@@ -66,16 +75,21 @@ func TestUserLogin(t *testing.T) {
 			}
 		`
 
+		// to capture header writing and mocking it in a ctx
+		rw := httptest.NewRecorder()
+		ctx := context.WithValue(t.Context(), middleware.ResponseWriterCtxKey, rw)
+
 		err := gql.Client.Post(query, &resp, client.Var("input", map[string]string{
 			"credential": user.Email,
 			"password":   user.Password,
-		}))
+		}), gql.WithContext(ctx))
 
-		t.Log(resp)
+		assert.Contains(t, rw.Header().Values("Set-Cookie")[0], fmt.Sprintf("%s=Bearer ", auth.AuthCookieName))
 		assert.NoError(t, err)
 		assert.ObjectsAreEqual(resp.Login, user.User)
 	})
 
+	// the only negative test that checks for cookie presence
 	t.Run("should not login with invalid password", func(t *testing.T) {
 		user := mocks.NewUser(db)
 
@@ -97,11 +111,16 @@ func TestUserLogin(t *testing.T) {
 			}
 		`
 
+		// to capture header writing and mocking it in a ctx
+		rw := httptest.NewRecorder()
+		ctx := context.WithValue(t.Context(), middleware.ResponseWriterCtxKey, rw)
+
 		err := gql.Client.Post(query, &resp, client.Var("input", map[string]string{
 			"credential": user.Username,
 			"password":   "wrongpassword",
-		}))
+		}), gql.WithContext(ctx))
 
+		assert.Empty(t, rw.Header().Values("Set-Cookie"))
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), resolvers.ErrInvalidPassword.Error())
 	})
@@ -193,14 +212,19 @@ func TestUserSignup(t *testing.T) {
 			}
 		`
 
-		err := gql.Client.Post(query, &resp, client.Var("input", input))
+		// to capture header writing and mocking it in a ctx
+		rw := httptest.NewRecorder()
+		ctx := context.WithValue(t.Context(), middleware.ResponseWriterCtxKey, rw)
 
-		t.Log(resp)
+		err := gql.Client.Post(query, &resp, client.Var("input", input), gql.WithContext(ctx))
+
 		assert.NoError(t, err)
+		assert.Contains(t, rw.Header().Values("Set-Cookie")[0], fmt.Sprintf("%s=Bearer ", auth.AuthCookieName))
 		assert.Equal(t, input["email"], resp.Signup.Email)
 		assert.Equal(t, input["username"], resp.Signup.Username)
 	})
 
+	// the only negative test that checks for cookie presence
 	t.Run("should not signup with existing email", func(t *testing.T) {
 		user := mocks.NewUser(db)
 		input := map[string]string{
@@ -227,8 +251,13 @@ func TestUserSignup(t *testing.T) {
 			}
 		`
 
-		err := gql.Client.Post(query, &resp, client.Var("input", input))
+		// to capture header writing and mocking it in a ctx
+		rw := httptest.NewRecorder()
+		ctx := context.WithValue(t.Context(), middleware.ResponseWriterCtxKey, rw)
 
+		err := gql.Client.Post(query, &resp, client.Var("input", input), gql.WithContext(ctx))
+
+		assert.Empty(t, rw.Header().Values("Set-Cookie"))
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), resolvers.ErrEmailExists.Error())
 	})

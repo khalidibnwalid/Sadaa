@@ -10,15 +10,15 @@ import (
 
 type ctxKey string
 
-const AuthCtxKey ctxKey = "auth.JWT_UserID"
+const AuthCtxKey ctxKey = "auth.user_id"
 
-func For(ctx context.Context) *uuid.UUID {
+func For(ctx context.Context) (*uuid.UUID, bool) {
 	if val := ctx.Value(AuthCtxKey); val != nil {
 		if userId, ok := val.(*uuid.UUID); ok {
-			return userId
+			return userId, true
 		}
 	}
-	return nil
+	return nil, false
 }
 
 // extracts the user ID from the JWT stored in the cookie.

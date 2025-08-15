@@ -12,7 +12,9 @@ import (
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/graph"
 	graph_models "github.com/khalidibnwalid/sadaa/server/internal/graph/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/middleware"
 	"github.com/khalidibnwalid/sadaa/server/internal/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/services/auth"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
@@ -36,7 +38,6 @@ func (r *mutationResolver) Signup(ctx context.Context, input graph_models.Signup
 		return nil, gqlerror.Wrap(ErrUsernameExists)
 	}
 
-
 	usr, err := r.DB.CreateUser(ctx, db.CreateUserParams{
 		Email:          user.User.Email,
 		Username:       user.User.Username,
@@ -46,6 +47,19 @@ func (r *mutationResolver) Signup(ctx context.Context, input graph_models.Signup
 	if err != nil {
 		return nil, gqlerror.Wrap(ErrInternalServerError)
 	}
+
+	// write the cookie
+	rw, ok := middleware.ForResponseWriter(ctx)
+	if !ok {
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+
+	auth, err := auth.GenerateAuthCookie(&usr.ID, r.Auth.JWTSecret, !r.IsDevelopment)
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrFailedToCreateAuthSession)
+	}
+
+	rw.Header().Set("Set-Cookie", auth)
 
 	// Explicitly did this to ignore HashedPassword
 	return &db.User{
@@ -82,6 +96,19 @@ func (r *mutationResolver) Login(ctx context.Context, input graph_models.LoginIn
 	if err != nil {
 		return nil, gqlerror.Wrap(ErrInvalidPassword)
 	}
+
+	// write the cookie
+	rw, ok := middleware.ForResponseWriter(ctx)
+	if !ok {
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+
+	auth, err := auth.GenerateAuthCookie(&usr.ID, r.Auth.JWTSecret, !r.IsDevelopment)
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrFailedToCreateAuthSession)
+	}
+
+	rw.Header().Set("Set-Cookie", auth)
 
 	// Explicitly did this to ignore HashedPassword
 	return &db.User{

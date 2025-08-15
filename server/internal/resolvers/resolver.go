@@ -3,7 +3,10 @@ package resolvers
 //go:generate go run github.com/99designs/gqlgen
 //go:generate go run github.com/99designs/gqlgen generate
 
-import "github.com/khalidibnwalid/sadaa/server/internal/db"
+import (
+	"github.com/khalidibnwalid/sadaa/server/internal/app"
+	"github.com/khalidibnwalid/sadaa/server/internal/db"
+)
 
 // This file will not be regenerated automatically.
 //
@@ -11,4 +14,6 @@ import "github.com/khalidibnwalid/sadaa/server/internal/db"
 
 type Resolver struct {
 	DB *db.Queries
+	Auth *app.AuthConfig
+	IsDevelopment bool
 }

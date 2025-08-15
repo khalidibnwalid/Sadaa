@@ -1,6 +1,7 @@
 package mocks
 
 import (
+	"context"
 	"testing"
 
 	"github.com/99designs/gqlgen/client"
@@ -20,7 +21,9 @@ func NewGqlClient(t *testing.T) *MockGqlClient {
 	t.Helper()
 
 	res := &resolvers.Resolver{
-		DB: GetDbQueries(t),
+		DB:            GetDbQueries(t),
+		Auth:          DefaultAuthConfig(),
+		IsDevelopment: true,
 	}
 
 	srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: res}))
@@ -34,5 +37,12 @@ func NewGqlClient(t *testing.T) *MockGqlClient {
 	return &MockGqlClient{
 		Resolver: res,
 		Client:   client,
+	}
+}
+
+// injects the context into the GraphQL client request.
+func (c *MockGqlClient) WithContext(ctx context.Context) client.Option {
+	return func(req *client.Request) {
+		req.HTTP = req.HTTP.WithContext(ctx)
 	}
 }

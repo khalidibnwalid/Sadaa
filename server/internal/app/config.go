@@ -35,12 +35,18 @@ type Config struct {
 	IsDevelopment bool
 
 	DB *DBConfig
+
+	Auth *AuthConfig
 }
 
 type DBConfig struct {
 	URL      string
 	MaxConns int32
 	MinConns int32
+}
+
+type AuthConfig struct {
+	JWTSecret string
 }
 
 func DefaultConfig() *Config {
@@ -59,6 +65,10 @@ func DefaultConfig() *Config {
 			URL:      mustGetEnv("DB_URL"),
 			MinConns: int32(getIntEnv("DB_MIN_CONNS", defaultMinConns)),
 			MaxConns: int32(getIntEnv("DB_MAX_CONNS", defaultMaxConns)),
+		},
+
+		Auth: &AuthConfig{
+			JWTSecret: mustGetEnv("JWT_SECRET"),
 		},
 	}
 }

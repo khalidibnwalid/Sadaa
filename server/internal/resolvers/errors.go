@@ -11,4 +11,5 @@ var (
 	ErrInvalidEmailAddress = errors.New("invalid email address")
 	ErrEmailExists         = errors.New("email already exists")
 	ErrUsernameExists      = errors.New("username already exists")
+	ErrFailedToCreateAuthSession = errors.New("failed to create authentication session")
 )

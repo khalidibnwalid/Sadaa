@@ -22,6 +22,8 @@ func (r *Router) SetupRoutes(routerCtx *Context) {
 	)
 	resolver := &resolvers.Resolver{
 		DB: routerCtx.DB,
+		Auth: r.Server.Config.Auth,
+		IsDevelopment: r.Server.Config.IsDevelopment,
 	}
 
 	r.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
@@ -29,8 +31,10 @@ func (r *Router) SetupRoutes(routerCtx *Context) {
 		w.Write([]byte("pong"))
 	})
 
-	// Authed routes
+	// Authed routes (DON'T FORGET TO UPDATE THEM in mocks.NewGqlClient)
 	r.Group(func(r *Router) {
+		r.Use(middleware.InjectResponseWriter)
+		r.Use(middleware.InjectUser(r.Server.Config.Auth.JWTSecret))
 		r.Handle("/gql", r.graphqlHandler(resolver))
 	})
 
