@@ -1,3 +1,4 @@
+import Button from "@/components/ui/Button"
 import type { Server } from "@/types/servers"
 import { ChatCircleIcon, PlusIcon } from "@phosphor-icons/react"
 import { useLocation } from "@tanstack/react-router"
@@ -54,9 +55,10 @@ function SidebarButton({
     // link?: keyof FileRoutesByTo
 }) {
     return (
-        <button
+        <Button
+            variant="filledOutline"
             className={twJoin(
-                'relative group font-bold text-xl border-2 border-border hover:border-foreground size-14 flex items-center justify-center rounded-3xl hover:bg-foreground hover:text-background cursor-pointer duration-200',
+                'relative group font-bold text-xl size-14 flex items-center justify-center rounded-3xl px-0 py-0',
                 isActive && 'bg-foreground text-background border-foreground'
             )}
             title={text}
@@ -79,6 +81,6 @@ function SidebarButton({
             >
                 {text}
             </span>
-        </button>
+        </Button>
     )
 }

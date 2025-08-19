@@ -16,10 +16,12 @@ code {
 
 
 :root {
-  --background: #f2f0ff;
+  --background: #f0f1ff;
   --foreground: #000919;
   --primary: #1c1c1c;
   --primary-foreground: #ffffff;
+  --muted-foreground: #6c757d;
+  --muted-danger: #e15e5e;
   --border: #c9c9c9;
   --duration-transition: 2s;
 }
@@ -29,6 +31,8 @@ code {
   --foreground: #f2f0ff;
   --primary: #e0e0e0;
   --primary-foreground: #1c1c1c;
+  --muted-foreground: #d4d6f7;
+  --muted-danger: #e68686;
   --border: #393e4d;
 }
 
@@ -37,6 +41,8 @@ code {
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted-danger: var(--muted-danger);
   --color-border: var(--border);
 
   --duration-colors: var(--duration-transition);
