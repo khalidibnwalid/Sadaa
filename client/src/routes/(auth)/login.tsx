@@ -1,52 +1,79 @@
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { LOGIN_MUTATION } from "@/libs/graphql/auth";
+import { ApolloError, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
+const loginSchema = z.object({
+    credential: z.string(),
+    password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+});
+
 export const Route = createFileRoute('/(auth)/login')({
     component: RouteComponent,
 })
 
-const loginSchema = z.object({
-    email: z.string().email({ message: "Invalid email address" }),
-    password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-});
-
 function RouteComponent() {
-    const { control, handleSubmit } = useForm({
+    const [login] = useMutation(LOGIN_MUTATION);
+    const { control, handleSubmit, setError } = useForm({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            email: "",
+            credential: "",
             password: "",
         },
     });
 
-    function onSubmit(data: z.infer<typeof loginSchema>) {
-        console.log(data);
+    async function onSubmit(data: z.infer<typeof loginSchema>) {
+        try {
+            await login({
+                variables: {
+                    input: {
+                        credential: data.credential,
+                        password: data.password
+                    }
+                }
+            });
+
+            // TODO: handle auth context
+        } catch (error) {
+            if (error instanceof ApolloError) {
+                if (error.message.includes("user") || error.message.includes("email")) {
+                    setError("credential", {
+                        message: error.message
+                    });
+                }
+
+                if (error.message.includes("password")) {
+                    setError("password", {
+                        message: error.message
+                    });
+                }
+            }
+        }
     }
 
     return (
         <form
-            className='grid items-center gap-y-3'
+            className='grid items-center gap-y-3 animate-fade-in'
             onSubmit={handleSubmit(onSubmit)}
         >
             <div className='flex flex-col items-center'>
                 <h1 className='text-2xl font-bold'>Login</h1>
                 <p className='text-sm text-muted-foreground'>Please enter your credentials</p>
             </div>
-            <div className="gap-y-2" >
+            <div className="space-y-2">
                 <Controller
-                    name="email"
+                    name="credential"
                     control={control}
                     render={({ field, fieldState: { error } }) => (
                         <Input
                             {...field}
                             error={error?.message}
-                            label="Email"
-                            type="email"
-                            placeholder="me@example.com"
+                            className="flex-1 w-full"
+                            placeholder="Email or Username"
                         />
                     )}
                 />
@@ -57,7 +84,6 @@ function RouteComponent() {
                         <Input
                             {...field}
                             error={error?.message}
-                            label="Password"
                             type="password"
                             placeholder="••••••••"
                         />

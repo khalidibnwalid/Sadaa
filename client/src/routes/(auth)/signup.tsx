@@ -1,13 +1,11 @@
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import { SIGNUP_MUTATION } from "@/libs/graphql/auth";
+import { ApolloError, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, Link } from '@tanstack/react-router';
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
-
-export const Route = createFileRoute('/(auth)/signup')({
-    component: RouteComponent,
-})
 
 const signupSchema = z.object({
     username: z.string().min(2, { message: "Username is required" }),
@@ -15,8 +13,13 @@ const signupSchema = z.object({
     password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 });
 
+export const Route = createFileRoute('/(auth)/signup')({
+    component: RouteComponent,
+})
+
 function RouteComponent() {
-    const { control, handleSubmit } = useForm({
+    const [signup] = useMutation(SIGNUP_MUTATION);
+    const { control, handleSubmit, setError } = useForm({
         resolver: zodResolver(signupSchema),
         defaultValues: {
             username: "",
@@ -25,20 +28,52 @@ function RouteComponent() {
         },
     });
 
-    function onSubmit(data: z.infer<typeof signupSchema>) {
-        console.log(data);
+    async function onSubmit(input: z.infer<typeof signupSchema>) {
+        try {
+            await signup({
+                variables: {
+                    input: {
+                        username: input.username,
+                        email: input.email,
+                        password: input.password
+                    }
+                }
+            });
+
+            // TODO: handle auth context
+        } catch (error) {
+            if (error instanceof ApolloError) {
+                if (error.message.includes("user")) {
+                    setError("username", {
+                        message: error.message
+                    });
+                }
+
+                if (error.message.includes("email")) {
+                    setError("email", {
+                        message: error.message
+                    });
+                }
+
+                if (error.message.includes("password")) {
+                    setError("password", {
+                        message: error.message
+                    });
+                }
+            }
+        }
     }
 
     return (
         <form
-            className='grid items-center gap-y-3'
+            className='grid items-center gap-y-3 animate-fade-in'
             onSubmit={handleSubmit(onSubmit)}
         >
             <div className='flex flex-col items-center'>
                 <h1 className='text-2xl font-bold'>Sign Up</h1>
                 <p className='text-sm text-muted-foreground'>Create your account</p>
             </div>
-            <div className="grid gap-y-2">
+            <div className="space-y-2">
                 <Controller
                     name="username"
                     control={control}
@@ -46,9 +81,7 @@ function RouteComponent() {
                         <Input
                             {...field}
                             error={error?.message}
-                            label="Username"
-                            type="text"
-                            placeholder="username..."
+                            placeholder="Username"
                         />
                     )}
                 />
@@ -59,9 +92,8 @@ function RouteComponent() {
                         <Input
                             {...field}
                             error={error?.message}
-                            label="Email"
                             type="email"
-                            placeholder="me@example.com"
+                            placeholder="Email"
                         />
                     )}
                 />
@@ -72,7 +104,6 @@ function RouteComponent() {
                         <Input
                             {...field}
                             error={error?.message}
-                            label="Password"
                             type="password"
                             placeholder="••••••••"
                         />
