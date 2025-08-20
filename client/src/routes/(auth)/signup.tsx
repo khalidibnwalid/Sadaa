@@ -3,7 +3,7 @@ import Input from "@/components/ui/Input";
 import { SIGNUP_MUTATION } from "@/libs/graphql/auth";
 import { ApolloError, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate, useRouter } from '@tanstack/react-router';
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -18,6 +18,9 @@ export const Route = createFileRoute('/(auth)/signup')({
 })
 
 function RouteComponent() {
+    const router = useRouter();
+    const navigate = useNavigate();
+
     const [signup] = useMutation(SIGNUP_MUTATION);
     const { control, handleSubmit, setError } = useForm({
         resolver: zodResolver(signupSchema),
@@ -30,7 +33,7 @@ function RouteComponent() {
 
     async function onSubmit(input: z.infer<typeof signupSchema>) {
         try {
-            await signup({
+            const { data: res } = await signup({
                 variables: {
                     input: {
                         username: input.username,
@@ -40,7 +43,10 @@ function RouteComponent() {
                 }
             });
 
-            // TODO: handle auth context
+            if (res?.signup) {
+                router.invalidate();
+                navigate({ to: '/chat' });
+            }
         } catch (error) {
             if (error instanceof ApolloError) {
                 if (error.message.includes("user")) {

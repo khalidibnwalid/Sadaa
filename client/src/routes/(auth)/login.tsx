@@ -3,13 +3,13 @@ import Input from "@/components/ui/Input";
 import { LOGIN_MUTATION } from "@/libs/graphql/auth";
 import { ApolloError, useMutation } from "@apollo/client";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate, useRouter } from '@tanstack/react-router';
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
 const loginSchema = z.object({
     credential: z.string(),
-    password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+    password: z.string(),
 });
 
 export const Route = createFileRoute('/(auth)/login')({
@@ -17,6 +17,9 @@ export const Route = createFileRoute('/(auth)/login')({
 })
 
 function RouteComponent() {
+    const router = useRouter();
+    const navigate = useNavigate();
+
     const [login] = useMutation(LOGIN_MUTATION);
     const { control, handleSubmit, setError } = useForm({
         resolver: zodResolver(loginSchema),
@@ -28,7 +31,7 @@ function RouteComponent() {
 
     async function onSubmit(data: z.infer<typeof loginSchema>) {
         try {
-            await login({
+            const { data: res } = await login({
                 variables: {
                     input: {
                         credential: data.credential,
@@ -37,7 +40,10 @@ function RouteComponent() {
                 }
             });
 
-            // TODO: handle auth context
+            if (res?.login) {
+                router.invalidate()
+                navigate({ to: '/chat' })
+            }
         } catch (error) {
             if (error instanceof ApolloError) {
                 if (error.message.includes("user") || error.message.includes("email")) {

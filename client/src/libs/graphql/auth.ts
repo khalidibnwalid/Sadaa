@@ -19,3 +19,13 @@ export const LOGIN_MUTATION = gql(`
     }
   }
 `);
+
+export const GET_USER_QUERY = gql(`
+  query GetUser {
+    getUser {
+      id
+      email
+      username
+    }
+  }
+`);

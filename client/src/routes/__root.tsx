@@ -1,32 +1,39 @@
-import { env } from '@/env';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import { GET_USER_QUERY } from '@/libs/graphql/auth';
+import { apolloClient, type RouterContext } from '@/main';
 import { TanstackDevtools } from '@tanstack/react-devtools';
-import { Outlet, createRootRoute } from '@tanstack/react-router';
+import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
 import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools';
 
-const client = new ApolloClient({
-  uri: env.VITE_GRAPHQL_URL,
-  cache: new InMemoryCache(),
-  connectToDevTools: true
-});
-
-export const Route = createRootRoute({
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <>
-      <ApolloProvider client={client}>
-        <Outlet />
-        <TanstackDevtools
-          config={{
-            position: 'bottom-left',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
-      </ApolloProvider>
+      <Outlet />
+      <TanstackDevtools
+        config={{
+          position: 'bottom-left',
+        }}
+        plugins={[
+          {
+            name: 'Tanstack Router',
+            render: <TanStackRouterDevtoolsPanel />,
+          },
+        ]}
+      />
     </>
   ),
+  beforeLoad: async () => {
+    try {
+      const { data } = await apolloClient.query({ query: GET_USER_QUERY, fetchPolicy: 'network-only' })
+      return {
+        auth: data?.getUser?.id !== undefined
+          ? { user: data.getUser } as RouterContext['auth']
+          : null
+      } satisfies RouterContext
+    } catch (error) {
+      console.error("Error fetching user:", error)
+      return {
+        auth: null
+      } satisfies RouterContext
+    }
+  }
 })

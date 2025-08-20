@@ -1,7 +1,7 @@
 import Button from "@/components/ui/Button"
 import type { Server } from "@/types/servers"
 import { ChatCircleIcon, PlusIcon } from "@phosphor-icons/react"
-import { useLocation } from "@tanstack/react-router"
+import { useLocation, useRouteContext } from "@tanstack/react-router"
 import { twJoin } from 'tailwind-merge'
 
 const MOCK_DATA: Server[] = [
@@ -11,11 +11,13 @@ const MOCK_DATA: Server[] = [
 ]
 
 export default function ChatSidebar() {
+    const { auth } = useRouteContext({ from: '/chat' })
+    console.log(auth)
     const location = useLocation()
 
     return (
         <nav className='h-screen flex flex-col p-2'>
-            <ul className='space-y-2'>
+            <ul className='flex flex-col gap-y-2 h-full'>
                 <SidebarButton
                     // link=""
                     text="chats"
@@ -37,6 +39,11 @@ export default function ChatSidebar() {
                 >
                     <PlusIcon size={26} />
                 </SidebarButton>
+                <div className='flex-1' ></div>
+                <SidebarButton
+                    text={auth.user.username}
+                >
+                </SidebarButton>
             </ul>
         </nav>
     )
@@ -46,11 +53,13 @@ function SidebarButton({
     text,
     img,
     isActive,
+    className,
     children
 }: {
     text: string
     img?: string
     isActive?: boolean
+    className?: string
     children?: React.ReactNode
     // link?: keyof FileRoutesByTo
 }) {
@@ -59,7 +68,8 @@ function SidebarButton({
             variant="filledOutline"
             className={twJoin(
                 'relative group font-bold text-xl size-14 flex items-center justify-center rounded-3xl px-0 py-0',
-                isActive && 'bg-foreground text-background border-foreground'
+                isActive && 'bg-foreground text-background border-foreground',
+                className
             )}
             title={text}
         >
