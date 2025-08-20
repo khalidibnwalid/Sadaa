@@ -6,7 +6,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
@@ -122,22 +121,32 @@ func (r *mutationResolver) Login(ctx context.Context, input graph_models.LoginIn
 
 // GetUser is the resolver for the getUser field.
 func (r *queryResolver) GetUser(ctx context.Context) (*db.User, error) {
-	panic(fmt.Errorf("not implemented: GetUser - getUser"))
+	userId, ok := auth.For(ctx)
+	if !ok {
+		return nil, gqlerror.Wrap(ErrUnauthorized)
+	}
+
+	usr, err := r.DB.GetUserByID(ctx, *userId)
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrUserNotFound)
+	}
+
+	return &usr, nil
 }
 
 // AvatarURL is the resolver for the avatarUrl field.
-func (r *userResolver) AvatarURL(ctx context.Context, obj *db.User) (*string, error) {
-	panic(fmt.Errorf("not implemented: AvatarURL - avatarUrl"))
+func (r *userResolver) AvatarURL(ctx context.Context, usr *db.User) (*string, error) {
+	return &usr.AvatarUrl.String, nil
 }
 
 // CreatedAt is the resolver for the createdAt field.
-func (r *userResolver) CreatedAt(ctx context.Context, obj *db.User) (*time.Time, error) {
-	panic(fmt.Errorf("not implemented: CreatedAt - createdAt"))
+func (r *userResolver) CreatedAt(ctx context.Context, usr *db.User) (*time.Time, error) {
+	return &usr.CreatedAt.Time, nil
 }
 
 // UpdatedAt is the resolver for the updatedAt field.
-func (r *userResolver) UpdatedAt(ctx context.Context, obj *db.User) (*time.Time, error) {
-	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
+func (r *userResolver) UpdatedAt(ctx context.Context, usr *db.User) (*time.Time, error) {
+	return &usr.UpdatedAt.Time, nil
 }
 
 // Mutation returns graph.MutationResolver implementation.

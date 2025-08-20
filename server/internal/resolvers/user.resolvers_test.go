@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/99designs/gqlgen/client"
+	"github.com/google/uuid"
 	"github.com/khalidibnwalid/sadaa/server/internal/crypto"
 	"github.com/khalidibnwalid/sadaa/server/internal/middleware"
 	"github.com/khalidibnwalid/sadaa/server/internal/mocks"
@@ -325,5 +326,101 @@ func TestUserSignup(t *testing.T) {
 
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), resolvers.ErrInvalidEmailAddress.Error())
+	})
+
+}
+
+func TestGetUser(t *testing.T) {
+	db := mocks.GetDbQueries(t)
+	gql := mocks.NewGqlClient(t)
+
+	t.Run("should get user when authorized", func(t *testing.T) {
+		user := mocks.NewUser(db)
+
+		var resp struct {
+			GetUser struct {
+				ID       string
+				Email    string
+				Username string
+				AvatarUrl string
+				CreatedAt string
+				UpdatedAt string
+			}
+		}
+
+		query := `
+			query GetUser {
+				getUser {
+					id
+					email
+					username
+					avatarUrl
+					createdAt
+					updatedAt
+				}
+			}
+		`
+
+		ctx := user.InjectAuthContext(t.Context())
+		err := gql.Client.Post(query, &resp, gql.WithContext(ctx))
+
+		assert.NoError(t, err)
+		assert.Equal(t, user.User.ID.String(), resp.GetUser.ID)
+		assert.Equal(t, user.User.Email, resp.GetUser.Email)
+		assert.Equal(t, user.User.Username, resp.GetUser.Username)
+	})
+
+	t.Run("should fail when unauthorized", func(t *testing.T) {
+		var resp struct {
+			GetUser struct {
+				ID       string
+				Email    string
+				Username string
+			}
+		}
+
+		query := `
+			query GetUser {
+				getUser {
+					id
+					email
+					username
+				}
+			}
+		`
+
+		err := gql.Client.Post(query, &resp)
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), resolvers.ErrUnauthorized.Error())
+	})
+
+	t.Run("should fail when user not found", func(t *testing.T) {
+		// Use a random user ID that does not exist
+		fakeID := uuid.Nil
+
+		var resp struct {
+			GetUser struct {
+				ID       string
+				Email    string
+				Username string
+			}
+		}
+
+		query := `
+			query GetUser {
+				getUser {
+					id
+					email
+					username
+				}
+			}
+		`
+
+		ctx := mocks.InjectAuthContext(t.Context(), fakeID)
+		err := gql.Client.Post(query, &resp, gql.WithContext(ctx))
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), resolvers.ErrUserNotFound.Error())
 	})
 }

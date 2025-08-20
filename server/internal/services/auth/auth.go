@@ -12,10 +12,11 @@ type ctxKey string
 
 const AuthCtxKey ctxKey = "auth.user_id"
 
-func For(ctx context.Context) (*uuid.UUID, bool) {
+func For(ctx context.Context) (id *uuid.UUID, ok bool) {
 	if val := ctx.Value(AuthCtxKey); val != nil {
-		if userId, ok := val.(*uuid.UUID); ok {
-			return userId, true
+		uuidId, err := uuid.Parse(val.(string))
+		if err == nil {
+			return &uuidId, true
 		}
 	}
 	return nil, false

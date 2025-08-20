@@ -6,6 +6,7 @@ import (
 	"github.com/khalidibnwalid/sadaa/server/internal/crypto"
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/services/auth"
 )
 
 type MockUser struct {
@@ -31,4 +32,8 @@ func NewUser(q *db.Queries) *MockUser {
 		User:     models.NewUser(&dbUsr),
 		Password: password,
 	}
+}
+
+func (u *MockUser) InjectAuthContext(ctx context.Context) context.Context {
+	return context.WithValue(ctx, auth.AuthCtxKey, u.User.ID.String())
 }

@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"log"
 	"net/http"
 )
 
@@ -19,7 +18,6 @@ func ForResponseWriter(ctx context.Context) (http.ResponseWriter, bool) {
 // injects the ResponseWriter into the request context.
 func InjectResponseWriter(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Print("Injecting response writer into context")
 		ctx := context.WithValue(r.Context(), ResponseWriterCtxKey, w)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
