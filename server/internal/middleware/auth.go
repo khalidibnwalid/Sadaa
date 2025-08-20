@@ -15,8 +15,8 @@ func InjectUser(secret string) func(http.Handler) http.Handler {
 			cookie, err := r.Cookie(auth.AuthCookieName)
 			if err == nil {
 				userId, err := auth.GetAuthFromCookie(secret, cookie.Value)
-				if err == nil && userId == nil {
-					ctx = context.WithValue(ctx, auth.AuthCtxKey, userId)
+				if err == nil && userId != nil {
+					ctx = context.WithValue(ctx, auth.AuthCtxKey, userId.String())
 				}
 			}
 

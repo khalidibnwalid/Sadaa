@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
@@ -53,12 +54,12 @@ func (r *mutationResolver) Signup(ctx context.Context, input graph_models.Signup
 		return nil, gqlerror.Wrap(ErrInternalServerError)
 	}
 
-	auth, err := auth.GenerateAuthCookie(&usr.ID, r.Auth.JWTSecret, !r.IsDevelopment)
+	AuthCookie, err := auth.GenerateAuthCookie(&usr.ID, r.Auth.JWTSecret, !r.IsDevelopment)
 	if err != nil {
 		return nil, gqlerror.Wrap(ErrFailedToCreateAuthSession)
 	}
 
-	rw.Header().Set("Set-Cookie", auth)
+	http.SetCookie(rw, AuthCookie)
 
 	// Explicitly did this to ignore HashedPassword
 	return &db.User{
@@ -102,12 +103,12 @@ func (r *mutationResolver) Login(ctx context.Context, input graph_models.LoginIn
 		return nil, gqlerror.Wrap(ErrInternalServerError)
 	}
 
-	auth, err := auth.GenerateAuthCookie(&usr.ID, r.Auth.JWTSecret, !r.IsDevelopment)
+	AuthCookie, err := auth.GenerateAuthCookie(&usr.ID, r.Auth.JWTSecret, !r.IsDevelopment)
 	if err != nil {
 		return nil, gqlerror.Wrap(ErrFailedToCreateAuthSession)
 	}
 
-	rw.Header().Set("Set-Cookie", auth)
+	http.SetCookie(rw, AuthCookie)
 
 	// Explicitly did this to ignore HashedPassword
 	return &db.User{

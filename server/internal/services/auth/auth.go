@@ -3,7 +3,7 @@ package auth
 import (
 	"context"
 	"fmt"
-	"strings"
+	"net/http"
 
 	"github.com/google/uuid"
 )
@@ -24,12 +24,11 @@ func For(ctx context.Context) (id *uuid.UUID, ok bool) {
 
 // extracts the user ID from the JWT stored in the cookie.
 func GetAuthFromCookie(secret string, cookieValue string) (*uuid.UUID, error) {
-	tokenString := strings.TrimPrefix(cookieValue, "Bearer ")
-	if tokenString == "" {
+	if cookieValue == "" {
 		return nil, fmt.Errorf("empty token string")
 	}
 
-	_, claims := validateJwtToken(secret, tokenString)
+	_, claims := validateJwtToken(secret, cookieValue)
 	if claims == nil {
 		return nil, fmt.Errorf("invalid token claims")
 	}
@@ -56,13 +55,13 @@ func GetAuthFromCookie(secret string, cookieValue string) (*uuid.UUID, error) {
 }
 
 // creates a JWT for the user and serializes it as a cookie string.
-func GenerateAuthCookie(userId *uuid.UUID, secret string, secure bool) (string, error) {
+func GenerateAuthCookie(userId *uuid.UUID, secret string, secure bool) (*http.Cookie, error) {
 	if userId == nil {
-		return "", fmt.Errorf("invalid user ID")
+		return nil, fmt.Errorf("invalid user ID")
 	}
 	token, err := generateJwtToken(secret, userId.String())
 	if err != nil {
-		return "", fmt.Errorf("failed to generate JWT: %w", err)
+		return nil, fmt.Errorf("failed to generate JWT: %w", err)
 	}
-	return serializeCookieWithToken(token, secure), nil
+	return createJWTCookie(token, secure), nil
 }

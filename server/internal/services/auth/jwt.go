@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -47,18 +48,19 @@ func validateJwtToken(secret, tokenString string) (token *jwt.Token, claims jwt.
 	return token, claims
 }
 
-// serializes the JWT token into a cookie format
-func serializeCookieWithToken(token string, secure bool) string {
-	formatedExpire := time.Now().Add(jwtTTL).Format(time.RFC1123Z)
-	if token != "" {
-		token = "Bearer " + token
-	}
+// serializes the JWT token into an http.Cookie
+func createJWTCookie(token string, secure bool) *http.Cookie {
+	formattedExpire := time.Now().Add(jwtTTL)
 
-	cookie := fmt.Sprintf("%s=%s; SameSite=Lax; Expires=%s; Path=/; HttpOnly;", AuthCookieName, token, formatedExpire)
-	if secure {
-		return cookie + " Secure;"
+	return &http.Cookie{
+		Name:     AuthCookieName,
+		Value:    token,
+		Path:     "/",
+		Expires:  formattedExpire,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   secure,
 	}
-	return cookie
 }
 
 func tokenExpired(exp float64) bool {

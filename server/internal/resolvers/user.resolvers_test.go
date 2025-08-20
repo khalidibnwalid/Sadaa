@@ -50,7 +50,7 @@ func TestUserLogin(t *testing.T) {
 			"password":   user.Password,
 		}), gql.WithContext(ctx))
 
-		assert.Contains(t, rw.Header().Values("Set-Cookie")[0], fmt.Sprintf("%s=Bearer ", auth.AuthCookieName))
+		assert.Contains(t, rw.Header().Values("Set-Cookie")[0], fmt.Sprintf("%s=", auth.AuthCookieName))
 		assert.NoError(t, err)
 		assert.ObjectsAreEqual(resp.Login, user.User)
 	})
@@ -85,7 +85,7 @@ func TestUserLogin(t *testing.T) {
 			"password":   user.Password,
 		}), gql.WithContext(ctx))
 
-		assert.Contains(t, rw.Header().Values("Set-Cookie")[0], fmt.Sprintf("%s=Bearer ", auth.AuthCookieName))
+		assert.Contains(t, rw.Header().Values("Set-Cookie")[0], fmt.Sprintf("%s=", auth.AuthCookieName))
 		assert.NoError(t, err)
 		assert.ObjectsAreEqual(resp.Login, user.User)
 	})
@@ -220,7 +220,7 @@ func TestUserSignup(t *testing.T) {
 		err := gql.Client.Post(query, &resp, client.Var("input", input), gql.WithContext(ctx))
 
 		assert.NoError(t, err)
-		assert.Contains(t, rw.Header().Values("Set-Cookie")[0], fmt.Sprintf("%s=Bearer ", auth.AuthCookieName))
+		assert.Contains(t, rw.Header().Values("Set-Cookie")[0], fmt.Sprintf("%s=", auth.AuthCookieName))
 		assert.Equal(t, input["email"], resp.Signup.Email)
 		assert.Equal(t, input["username"], resp.Signup.Username)
 	})
