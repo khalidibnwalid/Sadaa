@@ -1,6 +1,6 @@
-import { gql } from "@apollo/client";
+import { gql } from "@/__generated__/gql";
 
-export const SIGNUP_MUTATION = gql`
+export const SIGNUP_MUTATION = gql(`
   mutation SignUp($input: signupInput!) {
     signup(input: $input) {
       id
@@ -8,9 +8,9 @@ export const SIGNUP_MUTATION = gql`
       username
     }
   }
-`;
+`);
 
-export const LOGIN_MUTATION = gql`
+export const LOGIN_MUTATION = gql(`
   mutation Login($input: loginInput!) {
     login(input: $input) {
       id
@@ -18,4 +18,4 @@ export const LOGIN_MUTATION = gql`
       username
     }
   }
-`;
+`);
