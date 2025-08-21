@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 17.5 (Debian 17.5-1.pgdg120+1)
--- Dumped by pg_dump version 17.5
+-- Dumped from database version 17.5
+-- Dumped by pg_dump version 17.6
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -22,7 +22,39 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: postgres
+-- Name: server_members; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.server_members (
+    user_id uuid NOT NULL,
+    server_id uuid NOT NULL,
+    nickname text,
+    order_index integer,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.server_members OWNER TO admin;
+
+--
+-- Name: servers; Type: TABLE; Schema: public; Owner: admin
+--
+
+CREATE TABLE public.servers (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    name character varying(255) NOT NULL,
+    cover_url text,
+    creator_id uuid NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE public.servers OWNER TO admin;
+
+--
+-- Name: users; Type: TABLE; Schema: public; Owner: admin
 --
 
 CREATE TABLE public.users (
@@ -36,18 +68,26 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users OWNER TO postgres;
+ALTER TABLE public.users OWNER TO admin;
 
 --
--- Name: users users_email_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: server_members server_members_pkey; Type: CONSTRAINT; Schema: public; Owner: admin
 --
 
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_email_key UNIQUE (email);
+ALTER TABLE ONLY public.server_members
+    ADD CONSTRAINT server_members_pkey PRIMARY KEY (user_id, server_id);
 
 
 --
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: servers servers_pkey; Type: CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.servers
+    ADD CONSTRAINT servers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: admin
 --
 
 ALTER TABLE ONLY public.users
@@ -55,14 +95,31 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users users_username_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: server_members server_members_server_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
 --
 
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_username_key UNIQUE (username);
+ALTER TABLE ONLY public.server_members
+    ADD CONSTRAINT server_members_server_id_fkey FOREIGN KEY (server_id) REFERENCES public.servers(id) ON DELETE CASCADE;
+
+
+--
+-- Name: server_members server_members_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.server_members
+    ADD CONSTRAINT server_members_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
+
+
+--
+-- Name: servers servers_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: admin
+--
+
+ALTER TABLE ONLY public.servers
+    ADD CONSTRAINT servers_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 
 --
 -- PostgreSQL database dump complete
 --
+
 

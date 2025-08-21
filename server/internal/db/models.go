@@ -9,6 +9,24 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Server struct {
+	ID        uuid.UUID          `json:"id"`
+	Name      string             `json:"name"`
+	CoverUrl  pgtype.Text        `json:"cover_url"`
+	CreatorID uuid.UUID          `json:"creator_id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+type ServerMember struct {
+	UserID     uuid.UUID          `json:"user_id"`
+	ServerID   uuid.UUID          `json:"server_id"`
+	Nickname   pgtype.Text        `json:"nickname"`
+	OrderIndex pgtype.Int4        `json:"order_index"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
+}
+
 type User struct {
 	ID             uuid.UUID          `json:"id"`
 	Username       string             `json:"username"`
