@@ -1,0 +1,22 @@
+type Server {
+  id: UUID!
+  name: String!
+  coverUrl: String!
+  createdAt: Time!
+  updatedAt: Time!
+}
+
+input createServerInput {
+  name: String!
+  coverUrl: String!
+}
+
+extend type Mutation {
+  createServer(input: createServerInput!): Server!
+  # updateServer(id: UUID!, input: updateServerInput!): Server!
+  # deleteServer(id: UUID!): Boolean!
+}
+
+extend type Query {
+  getServerInfo(id: UUID!): Server
+}

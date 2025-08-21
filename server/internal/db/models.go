@@ -12,7 +12,7 @@ import (
 type Server struct {
 	ID        uuid.UUID          `json:"id"`
 	Name      string             `json:"name"`
-	CoverUrl  pgtype.Text        `json:"cover_url"`
+	CoverUrl  *string            `json:"cover_url"`
 	CreatorID uuid.UUID          `json:"creator_id"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
@@ -21,8 +21,8 @@ type Server struct {
 type ServerMember struct {
 	UserID     uuid.UUID          `json:"user_id"`
 	ServerID   uuid.UUID          `json:"server_id"`
-	Nickname   pgtype.Text        `json:"nickname"`
-	OrderIndex pgtype.Int4        `json:"order_index"`
+	Nickname   *string            `json:"nickname"`
+	OrderIndex *int32             `json:"order_index"`
 	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
 }
@@ -32,7 +32,7 @@ type User struct {
 	Username       string             `json:"username"`
 	Email          string             `json:"email"`
 	HashedPassword string             `json:"hashed_password"`
-	AvatarUrl      pgtype.Text        `json:"avatar_url"`
+	AvatarUrl      *string            `json:"avatar_url"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 }

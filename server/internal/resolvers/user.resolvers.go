@@ -135,19 +135,14 @@ func (r *queryResolver) GetUser(ctx context.Context) (*db.User, error) {
 	return &usr, nil
 }
 
-// AvatarURL is the resolver for the avatarUrl field.
-func (r *userResolver) AvatarURL(ctx context.Context, usr *db.User) (*string, error) {
-	return &usr.AvatarUrl.String, nil
-}
-
 // CreatedAt is the resolver for the createdAt field.
-func (r *userResolver) CreatedAt(ctx context.Context, usr *db.User) (*time.Time, error) {
-	return &usr.CreatedAt.Time, nil
+func (r *userResolver) CreatedAt(ctx context.Context, obj *db.User) (*time.Time, error) {
+	return &obj.CreatedAt.Time, nil
 }
 
 // UpdatedAt is the resolver for the updatedAt field.
-func (r *userResolver) UpdatedAt(ctx context.Context, usr *db.User) (*time.Time, error) {
-	return &usr.UpdatedAt.Time, nil
+func (r *userResolver) UpdatedAt(ctx context.Context, obj *db.User) (*time.Time, error) {
+	return &obj.UpdatedAt.Time, nil
 }
 
 // Mutation returns graph.MutationResolver implementation.

@@ -1,0 +1,28 @@
+type ServerMember {
+  id: UUID!
+  userId: UUID!
+  serverId: UUID!
+  orderIndex: Int!
+  nickname: String
+  createdAt: Time!
+  updatedAt: Time!
+
+  server: Server!
+}
+
+# input updateServerMemberInput {
+#   serverId: UUID!
+#   orderIndex: Int!
+#   nickname: String
+# }
+
+extend type Mutation {
+  joinServer(serverId: UUID!): ServerMember!
+  # updateServer(id: UUID!, input: updateServerInput!): Server!
+  # deleteServer(id: UUID!): Boolean!
+}
+
+extend type Query {
+  getServersOfUser: [ServerMember!]!
+  getServerMember(serverId: UUID!): ServerMember
+}

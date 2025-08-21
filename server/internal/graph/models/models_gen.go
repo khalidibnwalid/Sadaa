@@ -8,6 +8,11 @@ type Mutation struct {
 type Query struct {
 }
 
+type CreateServerInput struct {
+	Name     string `json:"name"`
+	CoverURL string `json:"coverUrl"`
+}
+
 type LoginInput struct {
 	Credential string `json:"credential"`
 	Password   string `json:"password"`
