@@ -17,6 +17,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	graph_models "github.com/khalidibnwalid/sadaa/server/internal/graph/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/models"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -76,7 +77,6 @@ type ComplexityRoot struct {
 
 	ServerMember struct {
 		CreatedAt  func(childComplexity int) int
-		ID         func(childComplexity int) int
 		Nickname   func(childComplexity int) int
 		OrderIndex func(childComplexity int) int
 		Server     func(childComplexity int) int
@@ -98,25 +98,22 @@ type ComplexityRoot struct {
 type MutationResolver interface {
 	Signup(ctx context.Context, input graph_models.SignupInput) (*db.User, error)
 	Login(ctx context.Context, input graph_models.LoginInput) (*db.User, error)
-	CreateServer(ctx context.Context, input graph_models.CreateServerInput) (*db.Server, error)
-	JoinServer(ctx context.Context, serverID uuid.UUID) (*db.ServerMember, error)
+	CreateServer(ctx context.Context, input graph_models.CreateServerInput) (*models.ServerMember, error)
+	JoinServer(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error)
 }
 type QueryResolver interface {
 	GetUser(ctx context.Context) (*db.User, error)
 	GetServerInfo(ctx context.Context, id uuid.UUID) (*db.Server, error)
-	GetServersOfUser(ctx context.Context) ([]*db.ServerMember, error)
-	GetServerMember(ctx context.Context, serverID uuid.UUID) (*db.ServerMember, error)
+	GetServersOfUser(ctx context.Context) ([]*models.ServerMember, error)
+	GetServerMember(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error)
 }
 type ServerResolver interface {
 	CreatedAt(ctx context.Context, obj *db.Server) (*time.Time, error)
 	UpdatedAt(ctx context.Context, obj *db.Server) (*time.Time, error)
 }
 type ServerMemberResolver interface {
-	ID(ctx context.Context, obj *db.ServerMember) (uuid.UUID, error)
-
-	CreatedAt(ctx context.Context, obj *db.ServerMember) (*time.Time, error)
-	UpdatedAt(ctx context.Context, obj *db.ServerMember) (*time.Time, error)
-	Server(ctx context.Context, obj *db.ServerMember) (*db.Server, error)
+	CreatedAt(ctx context.Context, obj *models.ServerMember) (*time.Time, error)
+	UpdatedAt(ctx context.Context, obj *models.ServerMember) (*time.Time, error)
 }
 type UserResolver interface {
 	CreatedAt(ctx context.Context, obj *db.User) (*time.Time, error)
@@ -269,13 +266,6 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.complexity.ServerMember.CreatedAt(childComplexity), true
-
-	case "ServerMember.id":
-		if e.complexity.ServerMember.ID == nil {
-			break
-		}
-
-		return e.complexity.ServerMember.ID(childComplexity), true
 
 	case "ServerMember.nickname":
 		if e.complexity.ServerMember.Nickname == nil {
@@ -483,7 +473,7 @@ input createServerInput {
 }
 
 extend type Mutation {
-  createServer(input: createServerInput!): Server!
+  createServer(input: createServerInput!): ServerMember!
   # updateServer(id: UUID!, input: updateServerInput!): Server!
   # deleteServer(id: UUID!): Boolean!
 }
@@ -492,7 +482,6 @@ extend type Query {
   getServerInfo(id: UUID!): Server
 }`, BuiltIn: false},
 	{Name: "../../gqlgen/schema/server_member.graphqls", Input: `type ServerMember {
-  id: UUID!
   userId: UUID!
   serverId: UUID!
   orderIndex: Int!
@@ -844,9 +833,9 @@ func (ec *executionContext) _Mutation_createServer(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*db.Server)
+	res := resTmp.(*models.ServerMember)
 	fc.Result = res
-	return ec.marshalNServer2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServer(ctx, field.Selections, res)
+	return ec.marshalNServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋmodelsᚐServerMember(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createServer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -857,18 +846,22 @@ func (ec *executionContext) fieldContext_Mutation_createServer(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Server_id(ctx, field)
-			case "name":
-				return ec.fieldContext_Server_name(ctx, field)
-			case "coverUrl":
-				return ec.fieldContext_Server_coverUrl(ctx, field)
+			case "userId":
+				return ec.fieldContext_ServerMember_userId(ctx, field)
+			case "serverId":
+				return ec.fieldContext_ServerMember_serverId(ctx, field)
+			case "orderIndex":
+				return ec.fieldContext_ServerMember_orderIndex(ctx, field)
+			case "nickname":
+				return ec.fieldContext_ServerMember_nickname(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_Server_createdAt(ctx, field)
+				return ec.fieldContext_ServerMember_createdAt(ctx, field)
 			case "updatedAt":
-				return ec.fieldContext_Server_updatedAt(ctx, field)
+				return ec.fieldContext_ServerMember_updatedAt(ctx, field)
+			case "server":
+				return ec.fieldContext_ServerMember_server(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Server", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type ServerMember", field.Name)
 		},
 	}
 	defer func() {
@@ -911,9 +904,9 @@ func (ec *executionContext) _Mutation_joinServer(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*db.ServerMember)
+	res := resTmp.(*models.ServerMember)
 	fc.Result = res
-	return ec.marshalNServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServerMember(ctx, field.Selections, res)
+	return ec.marshalNServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋmodelsᚐServerMember(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_joinServer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -924,8 +917,6 @@ func (ec *executionContext) fieldContext_Mutation_joinServer(ctx context.Context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_ServerMember_id(ctx, field)
 			case "userId":
 				return ec.fieldContext_ServerMember_userId(ctx, field)
 			case "serverId":
@@ -1103,9 +1094,9 @@ func (ec *executionContext) _Query_getServersOfUser(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*db.ServerMember)
+	res := resTmp.([]*models.ServerMember)
 	fc.Result = res
-	return ec.marshalNServerMember2ᚕᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServerMemberᚄ(ctx, field.Selections, res)
+	return ec.marshalNServerMember2ᚕᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋmodelsᚐServerMemberᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getServersOfUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1116,8 +1107,6 @@ func (ec *executionContext) fieldContext_Query_getServersOfUser(_ context.Contex
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_ServerMember_id(ctx, field)
 			case "userId":
 				return ec.fieldContext_ServerMember_userId(ctx, field)
 			case "serverId":
@@ -1162,9 +1151,9 @@ func (ec *executionContext) _Query_getServerMember(ctx context.Context, field gr
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*db.ServerMember)
+	res := resTmp.(*models.ServerMember)
 	fc.Result = res
-	return ec.marshalOServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServerMember(ctx, field.Selections, res)
+	return ec.marshalOServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋmodelsᚐServerMember(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getServerMember(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1175,8 +1164,6 @@ func (ec *executionContext) fieldContext_Query_getServerMember(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_ServerMember_id(ctx, field)
 			case "userId":
 				return ec.fieldContext_ServerMember_userId(ctx, field)
 			case "serverId":
@@ -1560,51 +1547,7 @@ func (ec *executionContext) fieldContext_Server_updatedAt(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _ServerMember_id(ctx context.Context, field graphql.CollectedField, obj *db.ServerMember) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ServerMember_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ServerMember().ID(rctx, obj)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(uuid.UUID)
-	fc.Result = res
-	return ec.marshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ServerMember_id(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ServerMember",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type UUID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _ServerMember_userId(ctx context.Context, field graphql.CollectedField, obj *db.ServerMember) (ret graphql.Marshaler) {
+func (ec *executionContext) _ServerMember_userId(ctx context.Context, field graphql.CollectedField, obj *models.ServerMember) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServerMember_userId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1648,7 +1591,7 @@ func (ec *executionContext) fieldContext_ServerMember_userId(_ context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _ServerMember_serverId(ctx context.Context, field graphql.CollectedField, obj *db.ServerMember) (ret graphql.Marshaler) {
+func (ec *executionContext) _ServerMember_serverId(ctx context.Context, field graphql.CollectedField, obj *models.ServerMember) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServerMember_serverId(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1692,7 +1635,7 @@ func (ec *executionContext) fieldContext_ServerMember_serverId(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _ServerMember_orderIndex(ctx context.Context, field graphql.CollectedField, obj *db.ServerMember) (ret graphql.Marshaler) {
+func (ec *executionContext) _ServerMember_orderIndex(ctx context.Context, field graphql.CollectedField, obj *models.ServerMember) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServerMember_orderIndex(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1736,7 +1679,7 @@ func (ec *executionContext) fieldContext_ServerMember_orderIndex(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _ServerMember_nickname(ctx context.Context, field graphql.CollectedField, obj *db.ServerMember) (ret graphql.Marshaler) {
+func (ec *executionContext) _ServerMember_nickname(ctx context.Context, field graphql.CollectedField, obj *models.ServerMember) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServerMember_nickname(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1777,7 +1720,7 @@ func (ec *executionContext) fieldContext_ServerMember_nickname(_ context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _ServerMember_createdAt(ctx context.Context, field graphql.CollectedField, obj *db.ServerMember) (ret graphql.Marshaler) {
+func (ec *executionContext) _ServerMember_createdAt(ctx context.Context, field graphql.CollectedField, obj *models.ServerMember) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServerMember_createdAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1821,7 +1764,7 @@ func (ec *executionContext) fieldContext_ServerMember_createdAt(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ServerMember_updatedAt(ctx context.Context, field graphql.CollectedField, obj *db.ServerMember) (ret graphql.Marshaler) {
+func (ec *executionContext) _ServerMember_updatedAt(ctx context.Context, field graphql.CollectedField, obj *models.ServerMember) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServerMember_updatedAt(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1865,7 +1808,7 @@ func (ec *executionContext) fieldContext_ServerMember_updatedAt(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _ServerMember_server(ctx context.Context, field graphql.CollectedField, obj *db.ServerMember) (ret graphql.Marshaler) {
+func (ec *executionContext) _ServerMember_server(ctx context.Context, field graphql.CollectedField, obj *models.ServerMember) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ServerMember_server(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1879,7 +1822,7 @@ func (ec *executionContext) _ServerMember_server(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ServerMember().Server(rctx, obj)
+		return obj.Server, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1900,8 +1843,8 @@ func (ec *executionContext) fieldContext_ServerMember_server(_ context.Context, 
 	fc = &graphql.FieldContext{
 		Object:     "ServerMember",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -4566,7 +4509,7 @@ func (ec *executionContext) _Server(ctx context.Context, sel ast.SelectionSet, o
 
 var serverMemberImplementors = []string{"ServerMember"}
 
-func (ec *executionContext) _ServerMember(ctx context.Context, sel ast.SelectionSet, obj *db.ServerMember) graphql.Marshaler {
+func (ec *executionContext) _ServerMember(ctx context.Context, sel ast.SelectionSet, obj *models.ServerMember) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, serverMemberImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4575,42 +4518,6 @@ func (ec *executionContext) _ServerMember(ctx context.Context, sel ast.Selection
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("ServerMember")
-		case "id":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._ServerMember_id(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
-			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "userId":
 			out.Values[i] = ec._ServerMember_userId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -4701,41 +4608,10 @@ func (ec *executionContext) _ServerMember(ctx context.Context, sel ast.Selection
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "server":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._ServerMember_server(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._ServerMember_server(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				atomic.AddUint32(&out.Invalids, 1)
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -5255,10 +5131,6 @@ func (ec *executionContext) marshalNInt2ᚖint32(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNServer2githubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServer(ctx context.Context, sel ast.SelectionSet, v db.Server) graphql.Marshaler {
-	return ec._Server(ctx, sel, &v)
-}
-
 func (ec *executionContext) marshalNServer2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServer(ctx context.Context, sel ast.SelectionSet, v *db.Server) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -5269,11 +5141,11 @@ func (ec *executionContext) marshalNServer2ᚖgithubᚗcomᚋkhalidibnwalidᚋsa
 	return ec._Server(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNServerMember2githubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServerMember(ctx context.Context, sel ast.SelectionSet, v db.ServerMember) graphql.Marshaler {
+func (ec *executionContext) marshalNServerMember2githubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋmodelsᚐServerMember(ctx context.Context, sel ast.SelectionSet, v models.ServerMember) graphql.Marshaler {
 	return ec._ServerMember(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNServerMember2ᚕᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServerMemberᚄ(ctx context.Context, sel ast.SelectionSet, v []*db.ServerMember) graphql.Marshaler {
+func (ec *executionContext) marshalNServerMember2ᚕᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋmodelsᚐServerMemberᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.ServerMember) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -5297,7 +5169,7 @@ func (ec *executionContext) marshalNServerMember2ᚕᚖgithubᚗcomᚋkhalidibnw
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServerMember(ctx, sel, v[i])
+			ret[i] = ec.marshalNServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋmodelsᚐServerMember(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5317,7 +5189,7 @@ func (ec *executionContext) marshalNServerMember2ᚕᚖgithubᚗcomᚋkhalidibnw
 	return ret
 }
 
-func (ec *executionContext) marshalNServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServerMember(ctx context.Context, sel ast.SelectionSet, v *db.ServerMember) graphql.Marshaler {
+func (ec *executionContext) marshalNServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋmodelsᚐServerMember(ctx context.Context, sel ast.SelectionSet, v *models.ServerMember) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5724,7 +5596,7 @@ func (ec *executionContext) marshalOServer2ᚖgithubᚗcomᚋkhalidibnwalidᚋsa
 	return ec._Server(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalOServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServerMember(ctx context.Context, sel ast.SelectionSet, v *db.ServerMember) graphql.Marshaler {
+func (ec *executionContext) marshalOServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋmodelsᚐServerMember(ctx context.Context, sel ast.SelectionSet, v *models.ServerMember) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

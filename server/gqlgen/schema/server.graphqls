@@ -12,7 +12,7 @@ input createServerInput {
 }
 
 extend type Mutation {
-  createServer(input: createServerInput!): Server!
+  createServer(input: createServerInput!): ServerMember!
   # updateServer(id: UUID!, input: updateServerInput!): Server!
   # deleteServer(id: UUID!): Boolean!
 }

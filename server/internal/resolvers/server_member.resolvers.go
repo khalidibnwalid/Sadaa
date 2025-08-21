@@ -10,46 +10,48 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/graph"
+	"github.com/khalidibnwalid/sadaa/server/internal/models"
 )
 
 // JoinServer is the resolver for the joinServer field.
-func (r *mutationResolver) JoinServer(ctx context.Context, serverID uuid.UUID) (*db.ServerMember, error) {
+func (r *mutationResolver) JoinServer(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error) {
 	panic(fmt.Errorf("not implemented: JoinServer - joinServer"))
 }
 
 // GetServersOfUser is the resolver for the getServersOfUser field.
-func (r *queryResolver) GetServersOfUser(ctx context.Context) ([]*db.ServerMember, error) {
+func (r *queryResolver) GetServersOfUser(ctx context.Context) ([]*models.ServerMember, error) {
 	panic(fmt.Errorf("not implemented: GetServersOfUser - getServersOfUser"))
 }
 
 // GetServerMember is the resolver for the getServerMember field.
-func (r *queryResolver) GetServerMember(ctx context.Context, serverID uuid.UUID) (*db.ServerMember, error) {
+func (r *queryResolver) GetServerMember(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error) {
 	panic(fmt.Errorf("not implemented: GetServerMember - getServerMember"))
 }
 
-// ID is the resolver for the id field.
-func (r *serverMemberResolver) ID(ctx context.Context, obj *db.ServerMember) (uuid.UUID, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
-}
-
 // CreatedAt is the resolver for the createdAt field.
-func (r *serverMemberResolver) CreatedAt(ctx context.Context, obj *db.ServerMember) (*time.Time, error) {
+func (r *serverMemberResolver) CreatedAt(ctx context.Context, obj *models.ServerMember) (*time.Time, error) {
 	panic(fmt.Errorf("not implemented: CreatedAt - createdAt"))
 }
 
 // UpdatedAt is the resolver for the updatedAt field.
-func (r *serverMemberResolver) UpdatedAt(ctx context.Context, obj *db.ServerMember) (*time.Time, error) {
+func (r *serverMemberResolver) UpdatedAt(ctx context.Context, obj *models.ServerMember) (*time.Time, error) {
 	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
-}
-
-// Server is the resolver for the server field.
-func (r *serverMemberResolver) Server(ctx context.Context, obj *db.ServerMember) (*db.Server, error) {
-	panic(fmt.Errorf("not implemented: Server - server"))
 }
 
 // ServerMember returns graph.ServerMemberResolver implementation.
 func (r *Resolver) ServerMember() graph.ServerMemberResolver { return &serverMemberResolver{r} }
 
 type serverMemberResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//    it when you're done.
+//  - You have helper methods in this file. Move them out to keep these resolver files clean.
+/*
+	func (r *serverMemberResolver) ID(ctx context.Context, obj *models.ServerMember) (uuid.UUID, error) {
+	panic(fmt.Errorf("not implemented: ID - id"))
+}
+*/

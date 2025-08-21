@@ -1,7 +1,7 @@
---- name: CreateServerMember :one
+-- name: CreateServerMember :one
 Insert into server_members (server_id, user_id) values ($1, $2) returning *;
 
---- name: GetServerMemberByUserId :one
+-- name: GetServerMemberByUserId :one
 Select * from server_members where user_id = $1 Limit 1;
 
 -- name: GetServerMemberByServerId :one

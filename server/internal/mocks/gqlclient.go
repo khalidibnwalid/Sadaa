@@ -22,7 +22,7 @@ func NewGqlClient(t *testing.T) *MockGqlClient {
 
 	res := &resolvers.Resolver{
 		DB:            GetDbQueries(t),
-		Auth:          DefaultAuthConfig(),
+		Auth:          DefaultAuthConfig(t),
 		IsDevelopment: true,
 	}
 

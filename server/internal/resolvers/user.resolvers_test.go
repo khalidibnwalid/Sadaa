@@ -21,7 +21,7 @@ func TestUserLogin(t *testing.T) {
 	gql := mocks.NewGqlClient(t)
 
 	t.Run("should login with valid username", func(t *testing.T) {
-		user := mocks.NewUser(db)
+		user := mocks.NewUser(t, db)
 
 		var resp struct {
 			Login struct {
@@ -56,7 +56,7 @@ func TestUserLogin(t *testing.T) {
 	})
 
 	t.Run("should login with valid email", func(t *testing.T) {
-		user := mocks.NewUser(db)
+		user := mocks.NewUser(t, db)
 
 		var resp struct {
 			Login struct {
@@ -92,7 +92,7 @@ func TestUserLogin(t *testing.T) {
 
 	// the only negative test that checks for cookie presence
 	t.Run("should not login with invalid password", func(t *testing.T) {
-		user := mocks.NewUser(db)
+		user := mocks.NewUser(t, db)
 
 		var resp struct {
 			Login struct {
@@ -188,7 +188,7 @@ func TestUserSignup(t *testing.T) {
 	gql := mocks.NewGqlClient(t)
 
 	t.Run("should signup with valid input", func(t *testing.T) {
-		user := mocks.NewUser(db)
+		user := mocks.NewUser(t, db)
 		input := map[string]string{
 			"email":    crypto.RandomString(10) + "@example.com",
 			"username": crypto.RandomString(10),
@@ -227,7 +227,7 @@ func TestUserSignup(t *testing.T) {
 
 	// the only negative test that checks for cookie presence
 	t.Run("should not signup with existing email", func(t *testing.T) {
-		user := mocks.NewUser(db)
+		user := mocks.NewUser(t, db)
 		input := map[string]string{
 			"email":    user.Email,
 			"username": crypto.RandomString(10),
@@ -264,7 +264,7 @@ func TestUserSignup(t *testing.T) {
 	})
 
 	t.Run("should not signup with existing username", func(t *testing.T) {
-		user := mocks.NewUser(db)
+		user := mocks.NewUser(t, db)
 		input := map[string]string{
 			"email":    crypto.RandomString(10) + "@example.com",
 			"username": user.Username,
@@ -297,7 +297,7 @@ func TestUserSignup(t *testing.T) {
 	})
 
 	t.Run("should not signup with invalid email", func(t *testing.T) {
-		user := mocks.NewUser(db)
+		user := mocks.NewUser(t, db)
 		input := map[string]string{
 			"email":    "invalid-email",
 			"username": crypto.RandomString(10),
@@ -335,13 +335,13 @@ func TestGetUser(t *testing.T) {
 	gql := mocks.NewGqlClient(t)
 
 	t.Run("should get user when authorized", func(t *testing.T) {
-		user := mocks.NewUser(db)
+		user := mocks.NewUser(t, db)
 
 		var resp struct {
 			GetUser struct {
-				ID       string
-				Email    string
-				Username string
+				ID        string
+				Email     string
+				Username  string
 				AvatarUrl string
 				CreatedAt string
 				UpdatedAt string
@@ -361,7 +361,7 @@ func TestGetUser(t *testing.T) {
 			}
 		`
 
-		ctx := user.InjectAuthContext(t.Context())
+		ctx := user.InjectAuthContext(t, t.Context())
 		err := gql.Client.Post(query, &resp, gql.WithContext(ctx))
 
 		assert.NoError(t, err)
@@ -417,7 +417,7 @@ func TestGetUser(t *testing.T) {
 			}
 		`
 
-		ctx := mocks.InjectAuthContext(t.Context(), fakeID)
+		ctx := mocks.InjectAuthContext(t, t.Context(), fakeID)
 		err := gql.Client.Post(query, &resp, gql.WithContext(ctx))
 
 		assert.Error(t, err)

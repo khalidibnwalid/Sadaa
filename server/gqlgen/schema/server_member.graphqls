@@ -1,5 +1,4 @@
 type ServerMember {
-  id: UUID!
   userId: UUID!
   serverId: UUID!
   orderIndex: Int!

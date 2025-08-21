@@ -6,33 +6,71 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/graph"
 	graph_models "github.com/khalidibnwalid/sadaa/server/internal/graph/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/services/auth"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // CreateServer is the resolver for the createServer field.
-func (r *mutationResolver) CreateServer(ctx context.Context, input graph_models.CreateServerInput) (*db.Server, error) {
-	panic(fmt.Errorf("not implemented: CreateServer - createServer"))
+func (r *mutationResolver) CreateServer(ctx context.Context, input graph_models.CreateServerInput) (*models.ServerMember, error) {
+	userid, ok := auth.For(ctx)
+	if !ok {
+		return nil, gqlerror.Wrap(ErrUnauthorized)
+	}
+
+	server, err := r.DB.CreateServer(ctx, db.CreateServerParams{
+		Name:      input.Name,
+		CreatorID: *userid,
+		CoverUrl:  &input.CoverURL,
+	})
+
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+
+	serverMember, err := r.DB.CreateServerMember(ctx, db.CreateServerMemberParams{
+		ServerID: server.ID,
+		UserID:   *userid,
+	})
+
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+
+	return &models.ServerMember{
+		ServerMember: &serverMember,
+		Server:       &server,
+	}, nil
 }
 
 // GetServerInfo is the resolver for the getServerInfo field.
 func (r *queryResolver) GetServerInfo(ctx context.Context, id uuid.UUID) (*db.Server, error) {
-	panic(fmt.Errorf("not implemented: GetServerInfo - getServerInfo"))
+	if !auth.IsAuthed(ctx) {
+		return nil, gqlerror.Wrap(ErrUnauthorized)
+	}
+
+	// TODO: add Not Found response
+	server, err := r.DB.GetServerById(ctx, id)
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+	return &server, nil
 }
 
 // CreatedAt is the resolver for the createdAt field.
 func (r *serverResolver) CreatedAt(ctx context.Context, obj *db.Server) (*time.Time, error) {
-	panic(fmt.Errorf("not implemented: CreatedAt - createdAt"))
+	return &obj.CreatedAt.Time, nil
 }
 
 // UpdatedAt is the resolver for the updatedAt field.
 func (r *serverResolver) UpdatedAt(ctx context.Context, obj *db.Server) (*time.Time, error) {
-	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
+	return &obj.UpdatedAt.Time, nil
 }
 
 // Server returns graph.ServerResolver implementation.

@@ -11,6 +11,29 @@ import (
 	"github.com/google/uuid"
 )
 
+const createServerMember = `-- name: CreateServerMember :one
+Insert into server_members (server_id, user_id) values ($1, $2) returning user_id, server_id, nickname, order_index, created_at, updated_at
+`
+
+type CreateServerMemberParams struct {
+	ServerID uuid.UUID `json:"server_id"`
+	UserID   uuid.UUID `json:"user_id"`
+}
+
+func (q *Queries) CreateServerMember(ctx context.Context, arg CreateServerMemberParams) (ServerMember, error) {
+	row := q.db.QueryRow(ctx, createServerMember, arg.ServerID, arg.UserID)
+	var i ServerMember
+	err := row.Scan(
+		&i.UserID,
+		&i.ServerID,
+		&i.Nickname,
+		&i.OrderIndex,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getServerMember = `-- name: GetServerMember :one
 Select user_id, server_id, nickname, order_index, created_at, updated_at from server_members where user_id = $1 AND server_id = $2 Limit 1
 `
@@ -40,6 +63,24 @@ Select user_id, server_id, nickname, order_index, created_at, updated_at from se
 
 func (q *Queries) GetServerMemberByServerId(ctx context.Context, serverID uuid.UUID) (ServerMember, error) {
 	row := q.db.QueryRow(ctx, getServerMemberByServerId, serverID)
+	var i ServerMember
+	err := row.Scan(
+		&i.UserID,
+		&i.ServerID,
+		&i.Nickname,
+		&i.OrderIndex,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getServerMemberByUserId = `-- name: GetServerMemberByUserId :one
+Select user_id, server_id, nickname, order_index, created_at, updated_at from server_members where user_id = $1 Limit 1
+`
+
+func (q *Queries) GetServerMemberByUserId(ctx context.Context, userID uuid.UUID) (ServerMember, error) {
+	row := q.db.QueryRow(ctx, getServerMemberByUserId, userID)
 	var i ServerMember
 	err := row.Scan(
 		&i.UserID,

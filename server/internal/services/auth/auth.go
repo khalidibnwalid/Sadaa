@@ -22,6 +22,12 @@ func For(ctx context.Context) (id *uuid.UUID, ok bool) {
 	return nil, false
 }
 
+// just check for authentication
+func IsAuthed(ctx context.Context) bool {
+	_, ok := For(ctx)
+	return ok
+}
+
 // extracts the user ID from the JWT stored in the cookie.
 func GetAuthFromCookie(secret string, cookieValue string) (*uuid.UUID, error) {
 	if cookieValue == "" {
@@ -65,3 +71,4 @@ func GenerateAuthCookie(userId *uuid.UUID, secret string, secure bool) (*http.Co
 	}
 	return createJWTCookie(token, secure), nil
 }
+

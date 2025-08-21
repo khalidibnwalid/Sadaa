@@ -2,6 +2,7 @@ package mocks
 
 import (
 	"context"
+	"testing"
 
 	"github.com/khalidibnwalid/sadaa/server/internal/crypto"
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
@@ -14,7 +15,8 @@ type MockUser struct {
 	Password string
 }
 
-func NewUser(q *db.Queries) *MockUser {
+func NewUser(t *testing.T, q *db.Queries) *MockUser {
+	t.Helper()
 	// Create a new user instance with default values
 	username := crypto.RandomString(20)
 	email := username + "@example.com"
@@ -34,6 +36,7 @@ func NewUser(q *db.Queries) *MockUser {
 	}
 }
 
-func (u *MockUser) InjectAuthContext(ctx context.Context) context.Context {
+func (u *MockUser) InjectAuthContext(t *testing.T, ctx context.Context) context.Context {
+	t.Helper()
 	return context.WithValue(ctx, auth.AuthCtxKey, u.User.ID.String())
 }

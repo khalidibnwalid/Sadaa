@@ -149,7 +149,7 @@ models:
     model: github.com/khalidibnwalid/sadaa/server/internal/db.Server
 
   ServerMember:
-    model: github.com/khalidibnwalid/sadaa/server/internal/db.ServerMember
+    model: github.com/khalidibnwalid/sadaa/server/internal/models.ServerMember
 
   # The GraphQL spec explicitly states that the Int type is a signed 32-bit
   # integer. Using Go int or int64 to represent it can lead to unexpected
