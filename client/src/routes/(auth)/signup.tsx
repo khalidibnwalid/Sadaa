@@ -1,9 +1,8 @@
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { SIGNUP_MUTATION } from "@/libs/graphql/auth";
-import { ApolloError, useMutation } from "@apollo/client";
+import { useSignupMutation } from "@/libs/queries/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link, useNavigate, useRouter } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -18,10 +17,34 @@ export const Route = createFileRoute('/(auth)/signup')({
 })
 
 function RouteComponent() {
-    const router = useRouter();
     const navigate = useNavigate();
 
-    const [signup] = useMutation(SIGNUP_MUTATION);
+    const { mutate: signup } = useSignupMutation({
+        onSuccess: () => navigate({ to: '/chat' }),
+        onError: (error) => {
+            const msg = error.response.errors?.[0].message
+            if (!msg) return
+
+            if (msg.includes("user")) {
+                setError("username", {
+                    message: msg
+                });
+            }
+
+            if (msg.includes("email")) {
+                setError("email", {
+                    message: msg
+                });
+            }
+
+            if (msg.includes("password")) {
+                setError("password", {
+                    message: msg
+                });
+            }
+        }
+    })
+
     const { control, handleSubmit, setError } = useForm({
         resolver: zodResolver(signupSchema),
         defaultValues: {
@@ -31,43 +54,8 @@ function RouteComponent() {
         },
     });
 
-    async function onSubmit(input: z.infer<typeof signupSchema>) {
-        try {
-            const { data: res } = await signup({
-                variables: {
-                    input: {
-                        username: input.username,
-                        email: input.email,
-                        password: input.password
-                    }
-                }
-            });
-
-            if (res?.signup) {
-                router.invalidate();
-                navigate({ to: '/chat' });
-            }
-        } catch (error) {
-            if (error instanceof ApolloError) {
-                if (error.message.includes("user")) {
-                    setError("username", {
-                        message: error.message
-                    });
-                }
-
-                if (error.message.includes("email")) {
-                    setError("email", {
-                        message: error.message
-                    });
-                }
-
-                if (error.message.includes("password")) {
-                    setError("password", {
-                        message: error.message
-                    });
-                }
-            }
-        }
+    async function onSubmit(data: z.infer<typeof signupSchema>) {
+        signup(data);
     }
 
     return (

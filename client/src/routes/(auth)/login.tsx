@@ -1,9 +1,8 @@
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { LOGIN_MUTATION } from "@/libs/graphql/auth";
-import { ApolloError, useMutation } from "@apollo/client";
+import { useLoginMutation } from "@/libs/queries/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link, useNavigate, useRouter } from '@tanstack/react-router';
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -17,10 +16,28 @@ export const Route = createFileRoute('/(auth)/login')({
 })
 
 function RouteComponent() {
-    const router = useRouter();
     const navigate = useNavigate();
 
-    const [login] = useMutation(LOGIN_MUTATION);
+    const { mutate: login } = useLoginMutation({
+        onSuccess: () => navigate({ to: '/chat' }),
+        onError: (error) => {
+            const msg = error.response.errors?.[0].message
+            if (!msg) return
+
+            if (msg.includes("user") || msg.includes("email")) {
+                setError("credential", {
+                    message: msg
+                });
+            }
+
+            if (msg.includes("password")) {
+                setError("password", {
+                    message: msg
+                });
+            }
+        }
+    });
+
     const { control, handleSubmit, setError } = useForm({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -30,35 +47,7 @@ function RouteComponent() {
     });
 
     async function onSubmit(data: z.infer<typeof loginSchema>) {
-        try {
-            const { data: res } = await login({
-                variables: {
-                    input: {
-                        credential: data.credential,
-                        password: data.password
-                    }
-                }
-            });
-
-            if (res?.login) {
-                router.invalidate()
-                navigate({ to: '/chat' })
-            }
-        } catch (error) {
-            if (error instanceof ApolloError) {
-                if (error.message.includes("user") || error.message.includes("email")) {
-                    setError("credential", {
-                        message: error.message
-                    });
-                }
-
-                if (error.message.includes("password")) {
-                    setError("password", {
-                        message: error.message
-                    });
-                }
-            }
-        }
+        login(data);
     }
 
     return (

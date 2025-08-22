@@ -12,7 +12,6 @@ const MOCK_DATA: Server[] = [
 
 export default function ChatSidebar() {
     const { auth } = useRouteContext({ from: '/chat' })
-    console.log(auth)
     const location = useLocation()
 
     return (
