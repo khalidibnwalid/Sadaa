@@ -20,8 +20,20 @@ export type Scalars = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  createServer: ServerMember;
+  joinServer: ServerMember;
   login?: Maybe<User>;
   signup?: Maybe<User>;
+};
+
+
+export type MutationCreateServerArgs = {
+  input: CreateServerInput;
+};
+
+
+export type MutationJoinServerArgs = {
+  serverId: Scalars['UUID']['input'];
 };
 
 
@@ -36,17 +48,55 @@ export type MutationSignupArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  getUser?: Maybe<User>;
+  server?: Maybe<Server>;
+  serverMembership?: Maybe<ServerMember>;
+  serverMemberships: Array<ServerMember>;
+  user?: Maybe<User>;
+};
+
+
+export type QueryServerArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+export type QueryServerMembershipArgs = {
+  serverId: Scalars['UUID']['input'];
+};
+
+export type Server = {
+  __typename?: 'Server';
+  coverUrl: Scalars['String']['output'];
+  createdAt: Scalars['Time']['output'];
+  id: Scalars['UUID']['output'];
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['Time']['output'];
+};
+
+export type ServerMember = {
+  __typename?: 'ServerMember';
+  createdAt: Scalars['Time']['output'];
+  nickname?: Maybe<Scalars['String']['output']>;
+  orderIndex: Scalars['Int']['output'];
+  server: Server;
+  serverId: Scalars['UUID']['output'];
+  updatedAt: Scalars['Time']['output'];
+  userId: Scalars['UUID']['output'];
 };
 
 export type User = {
   __typename?: 'User';
   avatarUrl?: Maybe<Scalars['String']['output']>;
-  createdAt?: Maybe<Scalars['Time']['output']>;
-  email?: Maybe<Scalars['String']['output']>;
-  id?: Maybe<Scalars['UUID']['output']>;
-  updatedAt?: Maybe<Scalars['Time']['output']>;
-  username?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Time']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['UUID']['output'];
+  updatedAt: Scalars['Time']['output'];
+  username: Scalars['String']['output'];
+};
+
+export type CreateServerInput = {
+  coverUrl: Scalars['String']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type LoginInput = {
@@ -65,21 +115,21 @@ export type SignUpMutationVariables = Exact<{
 }>;
 
 
-export type SignUpMutation = { __typename?: 'Mutation', signup?: { __typename?: 'User', id?: any | null, email?: string | null, username?: string | null } | null };
+export type SignUpMutation = { __typename?: 'Mutation', signup?: { __typename?: 'User', id: any, email: string, username: string } | null };
 
 export type LoginMutationVariables = Exact<{
   input: LoginInput;
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login?: { __typename?: 'User', id?: any | null, email?: string | null, username?: string | null } | null };
+export type LoginMutation = { __typename?: 'Mutation', login?: { __typename?: 'User', id: any, email: string, username: string } | null };
 
-export type GetUserQueryVariables = Exact<{ [key: string]: never; }>;
+export type UserQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', getUser?: { __typename?: 'User', id?: any | null, email?: string | null, username?: string | null } | null };
+export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id: any, email: string, username: string } | null };
 
 
 export const SignUpDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SignUp"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"signupInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"username"}}]}}]}}]} as unknown as DocumentNode<SignUpMutation, SignUpMutationVariables>;
 export const LoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"Login"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"loginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"username"}}]}}]}}]} as unknown as DocumentNode<LoginMutation, LoginMutationVariables>;
-export const GetUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"username"}}]}}]}}]} as unknown as DocumentNode<GetUserQuery, GetUserQueryVariables>;
+export const UserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"User"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"username"}}]}}]}}]} as unknown as DocumentNode<UserQuery, UserQueryVariables>;

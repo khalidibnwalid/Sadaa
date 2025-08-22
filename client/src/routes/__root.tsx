@@ -1,4 +1,4 @@
-import { GET_USER_QUERY } from '@/libs/graphql/auth';
+import { USER_QUERY } from '@/libs/graphql/auth';
 import { apolloClient, type RouterContext } from '@/main';
 import { TanstackDevtools } from '@tanstack/react-devtools';
 import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
@@ -23,10 +23,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   ),
   beforeLoad: async () => {
     try {
-      const { data } = await apolloClient.query({ query: GET_USER_QUERY, fetchPolicy: 'network-only' })
+      const { data } = await apolloClient.query({ query: USER_QUERY, fetchPolicy: 'network-only' })
       return {
-        auth: data?.getUser?.id !== undefined
-          ? { user: data.getUser } as RouterContext['auth']
+        auth: data?.user?.id !== undefined
+          ? { user: data.user } as RouterContext['auth']
           : null
       } satisfies RouterContext
     } catch (error) {

@@ -20,9 +20,9 @@ export const LOGIN_MUTATION = gql(`
   }
 `);
 
-export const GET_USER_QUERY = gql(`
-  query GetUser {
-    getUser {
+export const USER_QUERY = gql(`
+  query User {
+    user {
       id
       email
       username
