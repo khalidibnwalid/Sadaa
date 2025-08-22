@@ -49,8 +49,8 @@ func (r *mutationResolver) CreateServer(ctx context.Context, input graph_models.
 	}, nil
 }
 
-// GetServerInfo is the resolver for the getServerInfo field.
-func (r *queryResolver) GetServerInfo(ctx context.Context, id uuid.UUID) (*db.Server, error) {
+// Server is the resolver for the server field.
+func (r *queryResolver) Server(ctx context.Context, id uuid.UUID) (*db.Server, error) {
 	if !auth.IsAuthed(ctx) {
 		return nil, gqlerror.Wrap(ErrUnauthorized)
 	}

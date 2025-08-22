@@ -27,5 +27,5 @@ type Mutation {
 }
 
 type Query {
-  getUser: User
+  user: User
 }

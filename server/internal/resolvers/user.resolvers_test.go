@@ -330,7 +330,7 @@ func TestUserSignup(t *testing.T) {
 
 }
 
-func TestGetUser(t *testing.T) {
+func TestUser(t *testing.T) {
 	db := mocks.GetDbQueries(t)
 	gql := mocks.NewGqlClient(t)
 
@@ -338,7 +338,7 @@ func TestGetUser(t *testing.T) {
 		user := mocks.NewUser(t, db)
 
 		var resp struct {
-			GetUser struct {
+			User struct {
 				ID        string
 				Email     string
 				Username  string
@@ -349,8 +349,8 @@ func TestGetUser(t *testing.T) {
 		}
 
 		query := `
-			query GetUser {
-				getUser {
+			query User {
+				user {
 					id
 					email
 					username
@@ -365,14 +365,14 @@ func TestGetUser(t *testing.T) {
 		err := gql.Client.Post(query, &resp, gql.WithContext(ctx))
 
 		assert.NoError(t, err)
-		assert.Equal(t, user.User.ID.String(), resp.GetUser.ID)
-		assert.Equal(t, user.User.Email, resp.GetUser.Email)
-		assert.Equal(t, user.User.Username, resp.GetUser.Username)
+		assert.Equal(t, user.User.ID.String(), resp.User.ID)
+		assert.Equal(t, user.User.Email, resp.User.Email)
+		assert.Equal(t, user.User.Username, resp.User.Username)
 	})
 
 	t.Run("should fail when unauthorized", func(t *testing.T) {
 		var resp struct {
-			GetUser struct {
+			User struct {
 				ID       string
 				Email    string
 				Username string
@@ -380,8 +380,8 @@ func TestGetUser(t *testing.T) {
 		}
 
 		query := `
-			query GetUser {
-				getUser {
+			query User {
+				user {
 					id
 					email
 					username
@@ -400,7 +400,7 @@ func TestGetUser(t *testing.T) {
 		fakeID := uuid.Nil
 
 		var resp struct {
-			GetUser struct {
+			User struct {
 				ID       string
 				Email    string
 				Username string
@@ -408,8 +408,8 @@ func TestGetUser(t *testing.T) {
 		}
 
 		query := `
-			query GetUser {
-				getUser {
+			query User {
+				user {
 					id
 					email
 					username

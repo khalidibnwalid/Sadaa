@@ -61,10 +61,10 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetServerInfo    func(childComplexity int, id uuid.UUID) int
-		GetServerMember  func(childComplexity int, serverID uuid.UUID) int
-		GetServersOfUser func(childComplexity int) int
-		GetUser          func(childComplexity int) int
+		Server            func(childComplexity int, id uuid.UUID) int
+		ServerMembership  func(childComplexity int, serverID uuid.UUID) int
+		ServerMemberships func(childComplexity int) int
+		User              func(childComplexity int) int
 	}
 
 	Server struct {
@@ -102,10 +102,10 @@ type MutationResolver interface {
 	JoinServer(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error)
 }
 type QueryResolver interface {
-	GetUser(ctx context.Context) (*db.User, error)
-	GetServerInfo(ctx context.Context, id uuid.UUID) (*db.Server, error)
-	GetServersOfUser(ctx context.Context) ([]*models.ServerMember, error)
-	GetServerMember(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error)
+	User(ctx context.Context) (*db.User, error)
+	Server(ctx context.Context, id uuid.UUID) (*db.Server, error)
+	ServerMemberships(ctx context.Context) ([]*models.ServerMember, error)
+	ServerMembership(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error)
 }
 type ServerResolver interface {
 	CreatedAt(ctx context.Context, obj *db.Server) (*time.Time, error)
@@ -187,43 +187,43 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 
 		return e.complexity.Mutation.Signup(childComplexity, args["input"].(graph_models.SignupInput)), true
 
-	case "Query.getServerInfo":
-		if e.complexity.Query.GetServerInfo == nil {
+	case "Query.server":
+		if e.complexity.Query.Server == nil {
 			break
 		}
 
-		args, err := ec.field_Query_getServerInfo_args(ctx, rawArgs)
+		args, err := ec.field_Query_server_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetServerInfo(childComplexity, args["id"].(uuid.UUID)), true
+		return e.complexity.Query.Server(childComplexity, args["id"].(uuid.UUID)), true
 
-	case "Query.getServerMember":
-		if e.complexity.Query.GetServerMember == nil {
+	case "Query.serverMembership":
+		if e.complexity.Query.ServerMembership == nil {
 			break
 		}
 
-		args, err := ec.field_Query_getServerMember_args(ctx, rawArgs)
+		args, err := ec.field_Query_serverMembership_args(ctx, rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetServerMember(childComplexity, args["serverId"].(uuid.UUID)), true
+		return e.complexity.Query.ServerMembership(childComplexity, args["serverId"].(uuid.UUID)), true
 
-	case "Query.getServersOfUser":
-		if e.complexity.Query.GetServersOfUser == nil {
+	case "Query.serverMemberships":
+		if e.complexity.Query.ServerMemberships == nil {
 			break
 		}
 
-		return e.complexity.Query.GetServersOfUser(childComplexity), true
+		return e.complexity.Query.ServerMemberships(childComplexity), true
 
-	case "Query.getUser":
-		if e.complexity.Query.GetUser == nil {
+	case "Query.user":
+		if e.complexity.Query.User == nil {
 			break
 		}
 
-		return e.complexity.Query.GetUser(childComplexity), true
+		return e.complexity.Query.User(childComplexity), true
 
 	case "Server.coverUrl":
 		if e.complexity.Server.CoverUrl == nil {
@@ -479,7 +479,7 @@ extend type Mutation {
 }
 
 extend type Query {
-  getServerInfo(id: UUID!): Server
+  server(id: UUID!): Server
 }`, BuiltIn: false},
 	{Name: "../../gqlgen/schema/server_member.graphqls", Input: `type ServerMember {
   userId: UUID!
@@ -505,8 +505,8 @@ extend type Mutation {
 }
 
 extend type Query {
-  getServersOfUser: [ServerMember!]!
-  getServerMember(serverId: UUID!): ServerMember
+  serverMemberships: [ServerMember!]!
+  serverMembership(serverId: UUID!): ServerMember
 }`, BuiltIn: false},
 	{Name: "../../gqlgen/schema/user.graphqls", Input: `scalar Time
 scalar UUID
@@ -537,7 +537,7 @@ type Mutation {
 }
 
 type Query {
-  getUser: User
+  user: User
 }`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -601,18 +601,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getServerInfo_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
-	var err error
-	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID)
-	if err != nil {
-		return nil, err
-	}
-	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_getServerMember_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+func (ec *executionContext) field_Query_serverMembership_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
 	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "serverId", ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID)
@@ -620,6 +609,17 @@ func (ec *executionContext) field_Query_getServerMember_args(ctx context.Context
 		return nil, err
 	}
 	args["serverId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_server_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
+	var err error
+	args := map[string]any{}
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "id", ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID)
+	if err != nil {
+		return nil, err
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -949,8 +949,8 @@ func (ec *executionContext) fieldContext_Mutation_joinServer(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getUser(ctx, field)
+func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_user(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -963,7 +963,7 @@ func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetUser(rctx)
+		return ec.resolvers.Query().User(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -977,7 +977,7 @@ func (ec *executionContext) _Query_getUser(ctx context.Context, field graphql.Co
 	return ec.marshalOUser2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_user(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1004,8 +1004,8 @@ func (ec *executionContext) fieldContext_Query_getUser(_ context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getServerInfo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getServerInfo(ctx, field)
+func (ec *executionContext) _Query_server(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_server(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1018,7 +1018,7 @@ func (ec *executionContext) _Query_getServerInfo(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetServerInfo(rctx, fc.Args["id"].(uuid.UUID))
+		return ec.resolvers.Query().Server(rctx, fc.Args["id"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1032,7 +1032,7 @@ func (ec *executionContext) _Query_getServerInfo(ctx context.Context, field grap
 	return ec.marshalOServer2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋdbᚐServer(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getServerInfo(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_server(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1061,15 +1061,15 @@ func (ec *executionContext) fieldContext_Query_getServerInfo(ctx context.Context
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getServerInfo_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_server_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getServersOfUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getServersOfUser(ctx, field)
+func (ec *executionContext) _Query_serverMemberships(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_serverMemberships(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1082,7 +1082,7 @@ func (ec *executionContext) _Query_getServersOfUser(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetServersOfUser(rctx)
+		return ec.resolvers.Query().ServerMemberships(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1099,7 +1099,7 @@ func (ec *executionContext) _Query_getServersOfUser(ctx context.Context, field g
 	return ec.marshalNServerMember2ᚕᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋmodelsᚐServerMemberᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getServersOfUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_serverMemberships(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1128,8 +1128,8 @@ func (ec *executionContext) fieldContext_Query_getServersOfUser(_ context.Contex
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getServerMember(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getServerMember(ctx, field)
+func (ec *executionContext) _Query_serverMembership(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_serverMembership(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1142,7 +1142,7 @@ func (ec *executionContext) _Query_getServerMember(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetServerMember(rctx, fc.Args["serverId"].(uuid.UUID))
+		return ec.resolvers.Query().ServerMembership(rctx, fc.Args["serverId"].(uuid.UUID))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1156,7 +1156,7 @@ func (ec *executionContext) _Query_getServerMember(ctx context.Context, field gr
 	return ec.marshalOServerMember2ᚖgithubᚗcomᚋkhalidibnwalidᚋsadaaᚋserverᚋinternalᚋmodelsᚐServerMember(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getServerMember(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_serverMembership(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1189,7 +1189,7 @@ func (ec *executionContext) fieldContext_Query_getServerMember(ctx context.Conte
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getServerMember_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_serverMembership_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4276,7 +4276,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "getUser":
+		case "user":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -4285,7 +4285,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getUser(ctx, field)
+				res = ec._Query_user(ctx, field)
 				return res
 			}
 
@@ -4295,7 +4295,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getServerInfo":
+		case "server":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -4304,7 +4304,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getServerInfo(ctx, field)
+				res = ec._Query_server(ctx, field)
 				return res
 			}
 
@@ -4314,7 +4314,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getServersOfUser":
+		case "serverMemberships":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -4323,7 +4323,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getServersOfUser(ctx, field)
+				res = ec._Query_serverMemberships(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -4336,7 +4336,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getServerMember":
+		case "serverMembership":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -4345,7 +4345,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getServerMember(ctx, field)
+				res = ec._Query_serverMembership(ctx, field)
 				return res
 			}
 

@@ -18,5 +18,5 @@ extend type Mutation {
 }
 
 extend type Query {
-  getServerInfo(id: UUID!): Server
+  server(id: UUID!): Server
 }

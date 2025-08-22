@@ -22,6 +22,6 @@ extend type Mutation {
 }
 
 extend type Query {
-  getServersOfUser: [ServerMember!]!
-  getServerMember(serverId: UUID!): ServerMember
+  serverMemberships: [ServerMember!]!
+  serverMembership(serverId: UUID!): ServerMember
 }

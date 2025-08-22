@@ -19,14 +19,14 @@ func (r *mutationResolver) JoinServer(ctx context.Context, serverID uuid.UUID) (
 	panic(fmt.Errorf("not implemented: JoinServer - joinServer"))
 }
 
-// GetServersOfUser is the resolver for the getServersOfUser field.
-func (r *queryResolver) GetServersOfUser(ctx context.Context) ([]*models.ServerMember, error) {
-	panic(fmt.Errorf("not implemented: GetServersOfUser - getServersOfUser"))
+// ServerMemberships is the resolver for the serverMemberships field.
+func (r *queryResolver) ServerMemberships(ctx context.Context) ([]*models.ServerMember, error) {
+	panic(fmt.Errorf("not implemented: ServerMemberships - serverMemberships"))
 }
 
-// GetServerMember is the resolver for the getServerMember field.
-func (r *queryResolver) GetServerMember(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error) {
-	panic(fmt.Errorf("not implemented: GetServerMember - getServerMember"))
+// ServerMembership is the resolver for the serverMembership field.
+func (r *queryResolver) ServerMembership(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error) {
+	panic(fmt.Errorf("not implemented: ServerMembership - serverMembership"))
 }
 
 // CreatedAt is the resolver for the createdAt field.
@@ -43,15 +43,3 @@ func (r *serverMemberResolver) UpdatedAt(ctx context.Context, obj *models.Server
 func (r *Resolver) ServerMember() graph.ServerMemberResolver { return &serverMemberResolver{r} }
 
 type serverMemberResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//  - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//    it when you're done.
-//  - You have helper methods in this file. Move them out to keep these resolver files clean.
-/*
-	func (r *serverMemberResolver) ID(ctx context.Context, obj *models.ServerMember) (uuid.UUID, error) {
-	panic(fmt.Errorf("not implemented: ID - id"))
-}
-*/

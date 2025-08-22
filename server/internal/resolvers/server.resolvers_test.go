@@ -87,7 +87,7 @@ func TestCreateServer(t *testing.T) {
 	})
 }
 
-func TestGetServerInfo(t *testing.T) {
+func TestServer(t *testing.T) {
 	db := mocks.GetDbQueries(t)
 	gql := mocks.NewGqlClient(t)
 
@@ -96,15 +96,15 @@ func TestGetServerInfo(t *testing.T) {
 		server := mocks.NewServer(t, db, user.User.ID)
 
 		var resp struct {
-			GetServerInfo struct {
+			Server struct {
 				ID   string
 				Name string
 			}
 		}
 
 		query := `
-			query GetServerInfo($id: UUID!) {
-				getServerInfo(id: $id) {
+			query Server($id: UUID!) {
+				server(id: $id) {
 					id
 					name
 				}
@@ -115,22 +115,22 @@ func TestGetServerInfo(t *testing.T) {
 		err := gql.Client.Post(query, &resp, client.Var("id", server.ID.String()), gql.WithContext(ctx))
 
 		assert.NoError(t, err)
-		assert.Equal(t, server.ID.String(), resp.GetServerInfo.ID)
-		assert.Equal(t, server.Name, resp.GetServerInfo.Name)
+		assert.Equal(t, server.ID.String(), resp.Server.ID)
+		assert.Equal(t, server.Name, resp.Server.Name)
 	})
 
 	t.Run("should fail when unauthorized", func(t *testing.T) {
 		server := mocks.NewServer(t, db, uuid.New())
 
 		var resp struct {
-			GetServerInfo struct {
+			Server struct {
 				ID string
 			}
 		}
 
 		query := `
-			query GetServerInfo($id: UUID!) {
-				getServerInfo(id: $id) {
+			query Server($id: UUID!) {
+				server(id: $id) {
 					id
 				}
 			}
@@ -146,14 +146,14 @@ func TestGetServerInfo(t *testing.T) {
 		fakeID := uuid.New()
 
 		var resp struct {
-			GetServerInfo struct {
+			Server struct {
 				ID string
 			}
 		}
 
 		query := `
-			query GetServerInfo($id: UUID!) {
-				getServerInfo(id: $id) {
+			query Server($id: UUID!) {
+				server(id: $id) {
 					id
 				}
 			}

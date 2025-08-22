@@ -120,8 +120,8 @@ func (r *mutationResolver) Login(ctx context.Context, input graph_models.LoginIn
 	}, nil
 }
 
-// GetUser is the resolver for the getUser field.
-func (r *queryResolver) GetUser(ctx context.Context) (*db.User, error) {
+// User is the resolver for the user field.
+func (r *queryResolver) User(ctx context.Context) (*db.User, error) {
 	userId, ok := auth.For(ctx)
 	if !ok {
 		return nil, gqlerror.Wrap(ErrUnauthorized)
