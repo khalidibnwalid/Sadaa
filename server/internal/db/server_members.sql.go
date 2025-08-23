@@ -34,29 +34,6 @@ func (q *Queries) CreateServerMember(ctx context.Context, arg CreateServerMember
 	return &i, err
 }
 
-const getServerMember = `-- name: GetServerMember :one
-Select user_id, server_id, nickname, order_index, created_at, updated_at from server_members where user_id = $1 AND server_id = $2 Limit 1
-`
-
-type GetServerMemberParams struct {
-	UserID   uuid.UUID `json:"user_id"`
-	ServerID uuid.UUID `json:"server_id"`
-}
-
-func (q *Queries) GetServerMember(ctx context.Context, arg GetServerMemberParams) (*ServerMember, error) {
-	row := q.db.QueryRow(ctx, getServerMember, arg.UserID, arg.ServerID)
-	var i ServerMember
-	err := row.Scan(
-		&i.UserID,
-		&i.ServerID,
-		&i.Nickname,
-		&i.OrderIndex,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return &i, err
-}
-
 const getServerMemberByServerId = `-- name: GetServerMemberByServerId :one
 Select user_id, server_id, nickname, order_index, created_at, updated_at from server_members where server_id = $1 Limit 1
 `
@@ -91,4 +68,87 @@ func (q *Queries) GetServerMemberByUserId(ctx context.Context, userID uuid.UUID)
 		&i.UpdatedAt,
 	)
 	return &i, err
+}
+
+const getServerMemberWithServer = `-- name: GetServerMemberWithServer :one
+Select server_members.user_id, server_members.server_id, server_members.nickname, server_members.order_index, server_members.created_at, server_members.updated_at, servers.id, servers.name, servers.cover_url, servers.creator_id, servers.created_at, servers.updated_at 
+from server_members
+join servers on servers.id = server_members.server_id
+where user_id = $1 and server_id = $2 
+Limit 1
+`
+
+type GetServerMemberWithServerParams struct {
+	UserID   uuid.UUID `json:"user_id"`
+	ServerID uuid.UUID `json:"server_id"`
+}
+
+type GetServerMemberWithServerRow struct {
+	ServerMember ServerMember `json:"server_member"`
+	Server       Server       `json:"server"`
+}
+
+func (q *Queries) GetServerMemberWithServer(ctx context.Context, arg GetServerMemberWithServerParams) (*GetServerMemberWithServerRow, error) {
+	row := q.db.QueryRow(ctx, getServerMemberWithServer, arg.UserID, arg.ServerID)
+	var i GetServerMemberWithServerRow
+	err := row.Scan(
+		&i.ServerMember.UserID,
+		&i.ServerMember.ServerID,
+		&i.ServerMember.Nickname,
+		&i.ServerMember.OrderIndex,
+		&i.ServerMember.CreatedAt,
+		&i.ServerMember.UpdatedAt,
+		&i.Server.ID,
+		&i.Server.Name,
+		&i.Server.CoverUrl,
+		&i.Server.CreatorID,
+		&i.Server.CreatedAt,
+		&i.Server.UpdatedAt,
+	)
+	return &i, err
+}
+
+const getServerMemberWithServerByUserId = `-- name: GetServerMemberWithServerByUserId :many
+Select server_members.user_id, server_members.server_id, server_members.nickname, server_members.order_index, server_members.created_at, server_members.updated_at, servers.id, servers.name, servers.cover_url, servers.creator_id, servers.created_at, servers.updated_at 
+from server_members
+join servers on servers.id = server_members.server_id
+where user_id = $1
+`
+
+type GetServerMemberWithServerByUserIdRow struct {
+	ServerMember ServerMember `json:"server_member"`
+	Server       Server       `json:"server"`
+}
+
+func (q *Queries) GetServerMemberWithServerByUserId(ctx context.Context, userID uuid.UUID) ([]*GetServerMemberWithServerByUserIdRow, error) {
+	rows, err := q.db.Query(ctx, getServerMemberWithServerByUserId, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []*GetServerMemberWithServerByUserIdRow
+	for rows.Next() {
+		var i GetServerMemberWithServerByUserIdRow
+		if err := rows.Scan(
+			&i.ServerMember.UserID,
+			&i.ServerMember.ServerID,
+			&i.ServerMember.Nickname,
+			&i.ServerMember.OrderIndex,
+			&i.ServerMember.CreatedAt,
+			&i.ServerMember.UpdatedAt,
+			&i.Server.ID,
+			&i.Server.Name,
+			&i.Server.CoverUrl,
+			&i.Server.CreatorID,
+			&i.Server.CreatedAt,
+			&i.Server.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, &i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

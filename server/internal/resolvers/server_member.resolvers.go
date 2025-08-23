@@ -10,33 +10,69 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/graph"
 	"github.com/khalidibnwalid/sadaa/server/internal/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/services/auth"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // JoinServer is the resolver for the joinServer field.
-func (r *mutationResolver) JoinServer(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error) {
+func (r *mutationResolver) JoinServer(ctx context.Context, inviteID string) (*models.ServerMember, error) {
 	panic(fmt.Errorf("not implemented: JoinServer - joinServer"))
 }
 
 // ServerMemberships is the resolver for the serverMemberships field.
 func (r *queryResolver) ServerMemberships(ctx context.Context) ([]*models.ServerMember, error) {
-	panic(fmt.Errorf("not implemented: ServerMemberships - serverMemberships"))
+	userId, ok := auth.For(ctx)
+	if !ok {
+		return nil, gqlerror.Wrap(ErrUnauthorized)
+	}
+
+	members, err := r.DB.GetServerMemberWithServerByUserId(ctx, *userId)
+	if err != nil {
+		return nil, gqlerror.Wrap(err)
+	}
+
+	// I don't like this...
+	result := make([]*models.ServerMember, len(members))
+	for i, member := range members {
+		result[i] = models.NewServerMember(&member.ServerMember, &member.Server)
+	}
+	return result, nil
 }
 
 // ServerMembership is the resolver for the serverMembership field.
 func (r *queryResolver) ServerMembership(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error) {
-	panic(fmt.Errorf("not implemented: ServerMembership - serverMembership"))
+	userId, ok := auth.For(ctx)
+	if !ok {
+		return nil, gqlerror.Wrap(ErrUnauthorized)
+	}
+
+	member, err := r.DB.GetServerMemberWithServer(ctx, db.GetServerMemberWithServerParams{
+		UserID:   *userId,
+		ServerID: serverID,
+	})
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, gqlerror.Wrap(ErrNotFound)
+		}
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+
+	return models.NewServerMember(&member.ServerMember, &member.Server), nil
 }
 
 // CreatedAt is the resolver for the createdAt field.
 func (r *serverMemberResolver) CreatedAt(ctx context.Context, obj *models.ServerMember) (*time.Time, error) {
-	panic(fmt.Errorf("not implemented: CreatedAt - createdAt"))
+	return &obj.CreatedAt.Time, nil
 }
 
 // UpdatedAt is the resolver for the updatedAt field.
 func (r *serverMemberResolver) UpdatedAt(ctx context.Context, obj *models.ServerMember) (*time.Time, error) {
-	panic(fmt.Errorf("not implemented: UpdatedAt - updatedAt"))
+	return &obj.UpdatedAt.Time, nil
 }
 
 // ServerMember returns graph.ServerMemberResolver implementation.

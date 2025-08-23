@@ -55,7 +55,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	Mutation struct {
 		CreateServer func(childComplexity int, input graph_models.CreateServerInput) int
-		JoinServer   func(childComplexity int, serverID uuid.UUID) int
+		JoinServer   func(childComplexity int, inviteID string) int
 		Login        func(childComplexity int, input graph_models.LoginInput) int
 		Signup       func(childComplexity int, input graph_models.SignupInput) int
 	}
@@ -99,7 +99,7 @@ type MutationResolver interface {
 	Signup(ctx context.Context, input graph_models.SignupInput) (*db.User, error)
 	Login(ctx context.Context, input graph_models.LoginInput) (*db.User, error)
 	CreateServer(ctx context.Context, input graph_models.CreateServerInput) (*models.ServerMember, error)
-	JoinServer(ctx context.Context, serverID uuid.UUID) (*models.ServerMember, error)
+	JoinServer(ctx context.Context, inviteID string) (*models.ServerMember, error)
 }
 type QueryResolver interface {
 	User(ctx context.Context) (*db.User, error)
@@ -161,7 +161,7 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 			return 0, false
 		}
 
-		return e.complexity.Mutation.JoinServer(childComplexity, args["serverId"].(uuid.UUID)), true
+		return e.complexity.Mutation.JoinServer(childComplexity, args["inviteId"].(string)), true
 
 	case "Mutation.login":
 		if e.complexity.Mutation.Login == nil {
@@ -499,7 +499,7 @@ extend type Query {
 # }
 
 extend type Mutation {
-  joinServer(serverId: UUID!): ServerMember!
+  joinServer(inviteId: String!): ServerMember!
   # updateServer(id: UUID!, input: updateServerInput!): Server!
   # deleteServer(id: UUID!): Boolean!
 }
@@ -560,11 +560,11 @@ func (ec *executionContext) field_Mutation_createServer_args(ctx context.Context
 func (ec *executionContext) field_Mutation_joinServer_args(ctx context.Context, rawArgs map[string]any) (map[string]any, error) {
 	var err error
 	args := map[string]any{}
-	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "serverId", ec.unmarshalNUUID2githubᚗcomᚋgoogleᚋuuidᚐUUID)
+	arg0, err := graphql.ProcessArgField(ctx, rawArgs, "inviteId", ec.unmarshalNString2string)
 	if err != nil {
 		return nil, err
 	}
-	args["serverId"] = arg0
+	args["inviteId"] = arg0
 	return args, nil
 }
 
@@ -892,7 +892,7 @@ func (ec *executionContext) _Mutation_joinServer(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (any, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().JoinServer(rctx, fc.Args["serverId"].(uuid.UUID))
+		return ec.resolvers.Mutation().JoinServer(rctx, fc.Args["inviteId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)

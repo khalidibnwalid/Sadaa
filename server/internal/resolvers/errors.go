@@ -5,6 +5,7 @@ import "errors"
 var (
 	ErrInternalServerError = errors.New("internal server error")
 	ErrUnauthorized         = errors.New("unauthorized")
+	ErrNotFound             = errors.New("not found")
 
 	// signup page does tell you if email is used or not, I don't see a point in saying "wrong email or password"
 	ErrUserNotFound        = errors.New("user not found")

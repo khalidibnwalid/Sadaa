@@ -16,7 +16,7 @@ type ServerMember {
 # }
 
 extend type Mutation {
-  joinServer(serverId: UUID!): ServerMember!
+  joinServer(inviteId: String!): ServerMember!
   # updateServer(id: UUID!, input: updateServerInput!): Server!
   # deleteServer(id: UUID!): Boolean!
 }
