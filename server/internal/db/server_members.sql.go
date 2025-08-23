@@ -20,7 +20,7 @@ type CreateServerMemberParams struct {
 	UserID   uuid.UUID `json:"user_id"`
 }
 
-func (q *Queries) CreateServerMember(ctx context.Context, arg CreateServerMemberParams) (ServerMember, error) {
+func (q *Queries) CreateServerMember(ctx context.Context, arg CreateServerMemberParams) (*ServerMember, error) {
 	row := q.db.QueryRow(ctx, createServerMember, arg.ServerID, arg.UserID)
 	var i ServerMember
 	err := row.Scan(
@@ -31,7 +31,7 @@ func (q *Queries) CreateServerMember(ctx context.Context, arg CreateServerMember
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
 
 const getServerMember = `-- name: GetServerMember :one
@@ -43,7 +43,7 @@ type GetServerMemberParams struct {
 	ServerID uuid.UUID `json:"server_id"`
 }
 
-func (q *Queries) GetServerMember(ctx context.Context, arg GetServerMemberParams) (ServerMember, error) {
+func (q *Queries) GetServerMember(ctx context.Context, arg GetServerMemberParams) (*ServerMember, error) {
 	row := q.db.QueryRow(ctx, getServerMember, arg.UserID, arg.ServerID)
 	var i ServerMember
 	err := row.Scan(
@@ -54,14 +54,14 @@ func (q *Queries) GetServerMember(ctx context.Context, arg GetServerMemberParams
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
 
 const getServerMemberByServerId = `-- name: GetServerMemberByServerId :one
 Select user_id, server_id, nickname, order_index, created_at, updated_at from server_members where server_id = $1 Limit 1
 `
 
-func (q *Queries) GetServerMemberByServerId(ctx context.Context, serverID uuid.UUID) (ServerMember, error) {
+func (q *Queries) GetServerMemberByServerId(ctx context.Context, serverID uuid.UUID) (*ServerMember, error) {
 	row := q.db.QueryRow(ctx, getServerMemberByServerId, serverID)
 	var i ServerMember
 	err := row.Scan(
@@ -72,14 +72,14 @@ func (q *Queries) GetServerMemberByServerId(ctx context.Context, serverID uuid.U
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
 
 const getServerMemberByUserId = `-- name: GetServerMemberByUserId :one
 Select user_id, server_id, nickname, order_index, created_at, updated_at from server_members where user_id = $1 Limit 1
 `
 
-func (q *Queries) GetServerMemberByUserId(ctx context.Context, userID uuid.UUID) (ServerMember, error) {
+func (q *Queries) GetServerMemberByUserId(ctx context.Context, userID uuid.UUID) (*ServerMember, error) {
 	row := q.db.QueryRow(ctx, getServerMemberByUserId, userID)
 	var i ServerMember
 	err := row.Scan(
@@ -90,5 +90,5 @@ func (q *Queries) GetServerMemberByUserId(ctx context.Context, userID uuid.UUID)
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }

@@ -25,6 +25,6 @@ func NewServer(t *testing.T, q *db.Queries, userId uuid.UUID) *MockServerModel {
 	})
 
 	return &MockServerModel{
-		Server: models.NewServer(&server),
+		Server: models.NewServer(server),
 	}
 }

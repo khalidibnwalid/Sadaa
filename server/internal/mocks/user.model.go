@@ -31,7 +31,7 @@ func NewUser(t *testing.T, q *db.Queries) *MockUser {
 	})
 
 	return &MockUser{
-		User:     models.NewUser(&dbUsr),
+		User:     models.NewUser(dbUsr),
 		Password: password,
 	}
 }

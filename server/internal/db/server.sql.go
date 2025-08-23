@@ -21,7 +21,7 @@ type CreateServerParams struct {
 	CoverUrl  *string   `json:"cover_url"`
 }
 
-func (q *Queries) CreateServer(ctx context.Context, arg CreateServerParams) (Server, error) {
+func (q *Queries) CreateServer(ctx context.Context, arg CreateServerParams) (*Server, error) {
 	row := q.db.QueryRow(ctx, createServer, arg.Name, arg.CreatorID, arg.CoverUrl)
 	var i Server
 	err := row.Scan(
@@ -32,14 +32,14 @@ func (q *Queries) CreateServer(ctx context.Context, arg CreateServerParams) (Ser
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
 
 const getServerById = `-- name: GetServerById :one
 Select id, name, cover_url, creator_id, created_at, updated_at from servers where id = $1 Limit 1
 `
 
-func (q *Queries) GetServerById(ctx context.Context, id uuid.UUID) (Server, error) {
+func (q *Queries) GetServerById(ctx context.Context, id uuid.UUID) (*Server, error) {
 	row := q.db.QueryRow(ctx, getServerById, id)
 	var i Server
 	err := row.Scan(
@@ -50,5 +50,5 @@ func (q *Queries) GetServerById(ctx context.Context, id uuid.UUID) (Server, erro
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }

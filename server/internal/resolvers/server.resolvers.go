@@ -44,8 +44,8 @@ func (r *mutationResolver) CreateServer(ctx context.Context, input graph_models.
 	}
 
 	return &models.ServerMember{
-		ServerMember: &serverMember,
-		Server:       &server,
+		ServerMember: serverMember,
+		Server:       server,
 	}, nil
 }
 
@@ -60,7 +60,7 @@ func (r *queryResolver) Server(ctx context.Context, id uuid.UUID) (*db.Server, e
 	if err != nil {
 		return nil, gqlerror.Wrap(ErrInternalServerError)
 	}
-	return &server, nil
+	return server, nil
 }
 
 // CreatedAt is the resolver for the createdAt field.

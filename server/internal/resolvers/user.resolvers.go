@@ -82,13 +82,13 @@ func (r *mutationResolver) Login(ctx context.Context, input graph_models.LoginIn
 		if err != nil {
 			return nil, gqlerror.Wrap(ErrUserNotFound)
 		}
-		usr = models.NewUser(&dbusr)
+		usr = models.NewUser(dbusr)
 	} else {
 		dbusr, err := r.DB.GetUserByEmail(ctx, input.Credential)
 		if err != nil {
 			return nil, gqlerror.Wrap(ErrUserNotFound)
 		}
-		usr = models.NewUser(&dbusr)
+		usr = models.NewUser(dbusr)
 	}
 
 	// Verify the password
@@ -132,7 +132,7 @@ func (r *queryResolver) User(ctx context.Context) (*db.User, error) {
 		return nil, gqlerror.Wrap(ErrUserNotFound)
 	}
 
-	return &usr, nil
+	return usr, nil
 }
 
 // CreatedAt is the resolver for the createdAt field.

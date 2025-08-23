@@ -21,7 +21,7 @@ type CreateUserParams struct {
 	HashedPassword string `json:"hashed_password"`
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (*User, error) {
 	row := q.db.QueryRow(ctx, createUser, arg.Email, arg.Username, arg.HashedPassword)
 	var i User
 	err := row.Scan(
@@ -33,14 +33,14 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
 Select id, username, email, hashed_password, avatar_url, created_at, updated_at from users where email = $1 Limit 1
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserByEmail, email)
 	var i User
 	err := row.Scan(
@@ -52,14 +52,14 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
 Select id, username, email, hashed_password, avatar_url, created_at, updated_at from users where id = $1 Limit 1
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(
@@ -71,14 +71,14 @@ func (q *Queries) GetUserByID(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
 Select id, username, email, hashed_password, avatar_url, created_at, updated_at from users where username = $1 Limit 1
 `
 
-func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (*User, error) {
 	row := q.db.QueryRow(ctx, getUserByUsername, username)
 	var i User
 	err := row.Scan(
@@ -90,5 +90,5 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
-	return i, err
+	return &i, err
 }
