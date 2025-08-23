@@ -15,6 +15,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChatIndexRouteImport } from './routes/chat/index'
 import { Route as authSignupRouteImport } from './routes/(auth)/signup'
 import { Route as authLoginRouteImport } from './routes/(auth)/login'
+import { Route as ChatServerIdRouteRouteImport } from './routes/chat/$serverId/route'
+import { Route as ChatServerIdIndexRouteImport } from './routes/chat/$serverId/index'
 
 const ChatRouteRoute = ChatRouteRouteImport.update({
   id: '/chat',
@@ -45,42 +47,66 @@ const authLoginRoute = authLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => authRouteRoute,
 } as any)
+const ChatServerIdRouteRoute = ChatServerIdRouteRouteImport.update({
+  id: '/$serverId',
+  path: '/$serverId',
+  getParentRoute: () => ChatRouteRoute,
+} as any)
+const ChatServerIdIndexRoute = ChatServerIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ChatServerIdRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof authRouteRouteWithChildren
   '/chat': typeof ChatRouteRouteWithChildren
+  '/chat/$serverId': typeof ChatServerIdRouteRouteWithChildren
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
   '/chat/': typeof ChatIndexRoute
+  '/chat/$serverId/': typeof ChatServerIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof authRouteRouteWithChildren
   '/login': typeof authLoginRoute
   '/signup': typeof authSignupRoute
   '/chat': typeof ChatIndexRoute
+  '/chat/$serverId': typeof ChatServerIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/(auth)': typeof authRouteRouteWithChildren
   '/chat': typeof ChatRouteRouteWithChildren
+  '/chat/$serverId': typeof ChatServerIdRouteRouteWithChildren
   '/(auth)/login': typeof authLoginRoute
   '/(auth)/signup': typeof authSignupRoute
   '/chat/': typeof ChatIndexRoute
+  '/chat/$serverId/': typeof ChatServerIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chat' | '/login' | '/signup' | '/chat/'
+  fullPaths:
+    | '/'
+    | '/chat'
+    | '/chat/$serverId'
+    | '/login'
+    | '/signup'
+    | '/chat/'
+    | '/chat/$serverId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/chat'
+  to: '/' | '/login' | '/signup' | '/chat' | '/chat/$serverId'
   id:
     | '__root__'
     | '/'
     | '/(auth)'
     | '/chat'
+    | '/chat/$serverId'
     | '/(auth)/login'
     | '/(auth)/signup'
     | '/chat/'
+    | '/chat/$serverId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -133,6 +159,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof authLoginRouteImport
       parentRoute: typeof authRouteRoute
     }
+    '/chat/$serverId': {
+      id: '/chat/$serverId'
+      path: '/$serverId'
+      fullPath: '/chat/$serverId'
+      preLoaderRoute: typeof ChatServerIdRouteRouteImport
+      parentRoute: typeof ChatRouteRoute
+    }
+    '/chat/$serverId/': {
+      id: '/chat/$serverId/'
+      path: '/'
+      fullPath: '/chat/$serverId/'
+      preLoaderRoute: typeof ChatServerIdIndexRouteImport
+      parentRoute: typeof ChatServerIdRouteRoute
+    }
   }
 }
 
@@ -150,11 +190,24 @@ const authRouteRouteWithChildren = authRouteRoute._addFileChildren(
   authRouteRouteChildren,
 )
 
+interface ChatServerIdRouteRouteChildren {
+  ChatServerIdIndexRoute: typeof ChatServerIdIndexRoute
+}
+
+const ChatServerIdRouteRouteChildren: ChatServerIdRouteRouteChildren = {
+  ChatServerIdIndexRoute: ChatServerIdIndexRoute,
+}
+
+const ChatServerIdRouteRouteWithChildren =
+  ChatServerIdRouteRoute._addFileChildren(ChatServerIdRouteRouteChildren)
+
 interface ChatRouteRouteChildren {
+  ChatServerIdRouteRoute: typeof ChatServerIdRouteRouteWithChildren
   ChatIndexRoute: typeof ChatIndexRoute
 }
 
 const ChatRouteRouteChildren: ChatRouteRouteChildren = {
+  ChatServerIdRouteRoute: ChatServerIdRouteRouteWithChildren,
   ChatIndexRoute: ChatIndexRoute,
 }
 

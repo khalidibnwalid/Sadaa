@@ -1,6 +1,6 @@
 import Button from "@/components/ui/Button"
-import { ChatCircleIcon, PlusIcon } from "@phosphor-icons/react"
 import { useLocation, useRouteContext } from "@tanstack/react-router"
+import { PiChatCircleFill, PiPlus } from "react-icons/pi"
 import { twJoin } from 'tailwind-merge'
 
 export default function ChatSidebar() {
@@ -15,7 +15,7 @@ export default function ChatSidebar() {
                     text="chats"
                     isActive={location.pathname === '/chat'}
                 >
-                    <ChatCircleIcon size={26} weight="fill" />
+                    <PiChatCircleFill size={26} />
                 </SidebarButton>
                 {servers.map(({ server }) => (
                     <li key={server.id}>
@@ -29,7 +29,7 @@ export default function ChatSidebar() {
                 <SidebarButton
                     text="add server"
                 >
-                    <PlusIcon size={26} />
+                    <PiPlus size={26} />
                 </SidebarButton>
                 <div className='flex-1' ></div>
                 <SidebarButton
