@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
+	pgx "github.com/jackc/pgx/v5"
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/graph"
 	"github.com/khalidibnwalid/sadaa/server/internal/models"

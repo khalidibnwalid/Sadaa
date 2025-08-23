@@ -1,7 +1,7 @@
 type Server {
   id: UUID!
   name: String!
-  coverUrl: String!
+  coverUrl: String
   createdAt: Time!
   updatedAt: Time!
 }
