@@ -1,17 +1,10 @@
 import Button from "@/components/ui/Button"
-import type { Server } from "@/types/servers"
 import { ChatCircleIcon, PlusIcon } from "@phosphor-icons/react"
 import { useLocation, useRouteContext } from "@tanstack/react-router"
 import { twJoin } from 'tailwind-merge'
 
-const MOCK_DATA: Server[] = [
-    { id: 1, name: "Chat 1", iconUrl: "" },
-    { id: 2, name: "Chat 2", iconUrl: "https://placehold.co/50" },
-    { id: 3, name: "Chat 3", iconUrl: "" },
-]
-
 export default function ChatSidebar() {
-    const { auth } = useRouteContext({ from: '/chat' })
+    const { auth, servers } = useRouteContext({ from: '/chat' })
     const location = useLocation()
 
     return (
@@ -24,11 +17,11 @@ export default function ChatSidebar() {
                 >
                     <ChatCircleIcon size={26} weight="fill" />
                 </SidebarButton>
-                {MOCK_DATA.map((server) => (
+                {servers.map(({ server }) => (
                     <li key={server.id}>
                         <SidebarButton
                             text={server.name}
-                            img={server.iconUrl}
+                            img={server.coverUrl}
                             isActive={location.pathname === `/chat/${server.id}`}
                         />
                     </li>

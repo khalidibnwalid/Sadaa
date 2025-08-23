@@ -14,16 +14,6 @@ import reportWebVitals from './reportWebVitals.ts'
 import './styles.css'
 import type { AuthUser } from './types/user.ts'
 
-interface AuthContext {
-  user: AuthUser
-}
-
-export interface RouterContext {
-  auth: AuthContext | null
-  queryClient: QueryClient
-  graphqlClient: GraphQLClient
-}
-
 const queryClient = new QueryClient()
 const graphqlClient = new GraphQLClient(
   env.VITE_GRAPHQL_URL,
@@ -31,6 +21,17 @@ const graphqlClient = new GraphQLClient(
     credentials: 'include'
   }
 )
+
+interface AuthContext {
+  user: AuthUser
+}
+
+export interface RouterContext {
+  auth: AuthContext | null
+  queryClient: typeof queryClient
+  graphqlClient: typeof graphqlClient
+}
+
 
 // Create a new router instance
 const router = createRouter({
@@ -54,10 +55,14 @@ declare module '@tanstack/react-router' {
 }
 
 function App() {
-  const { data: user } = useQuery({
+  const { data: user, isLoading } = useQuery({
     queryKey: [USER_CACHE_KEY],
-    queryFn: async () => graphqlClient.request(USER_QUERY)
+    queryFn: async () => await graphqlClient.request(USER_QUERY),
   }, queryClient)
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
