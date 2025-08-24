@@ -19,7 +19,7 @@ import (
 )
 
 // Signup is the resolver for the signup field.
-func (r *mutationResolver) Signup(ctx context.Context, input graph_models.SignupInput) (*db.User, error) {
+func (r *mutationResolver) Signup(ctx context.Context, input graph_models.SignupInput) (*models.User, error) {
 	user := models.NewUser().
 		WithPassword(input.Password)
 	err := user.WithEmail(input.Email)
@@ -61,18 +61,11 @@ func (r *mutationResolver) Signup(ctx context.Context, input graph_models.Signup
 
 	http.SetCookie(rw, AuthCookie)
 
-	// Explicitly did this to ignore HashedPassword
-	return &db.User{
-		ID:        usr.ID,
-		Email:     usr.Email,
-		Username:  usr.Username,
-		CreatedAt: usr.CreatedAt,
-		UpdatedAt: usr.UpdatedAt,
-	}, nil
+	return models.NewUser(usr), nil
 }
 
 // Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input graph_models.LoginInput) (*db.User, error) {
+func (r *mutationResolver) Login(ctx context.Context, input graph_models.LoginInput) (*models.User, error) {
 	usr := models.NewUser()
 	err := usr.WithEmail(input.Credential)
 
@@ -110,18 +103,11 @@ func (r *mutationResolver) Login(ctx context.Context, input graph_models.LoginIn
 
 	http.SetCookie(rw, AuthCookie)
 
-	// Explicitly did this to ignore HashedPassword
-	return &db.User{
-		ID:        usr.ID,
-		Email:     usr.Email,
-		Username:  usr.Username,
-		CreatedAt: usr.CreatedAt,
-		UpdatedAt: usr.UpdatedAt,
-	}, nil
+	return usr, nil
 }
 
 // User is the resolver for the user field.
-func (r *queryResolver) User(ctx context.Context) (*db.User, error) {
+func (r *queryResolver) User(ctx context.Context) (*models.User, error) {
 	userId, ok := auth.For(ctx)
 	if !ok {
 		return nil, gqlerror.Wrap(ErrUnauthorized)
@@ -132,16 +118,16 @@ func (r *queryResolver) User(ctx context.Context) (*db.User, error) {
 		return nil, gqlerror.Wrap(ErrUserNotFound)
 	}
 
-	return usr, nil
+	return models.NewUser(usr), nil
 }
 
 // CreatedAt is the resolver for the createdAt field.
-func (r *userResolver) CreatedAt(ctx context.Context, obj *db.User) (*time.Time, error) {
+func (r *userResolver) CreatedAt(ctx context.Context, obj *models.User) (*time.Time, error) {
 	return &obj.CreatedAt.Time, nil
 }
 
 // UpdatedAt is the resolver for the updatedAt field.
-func (r *userResolver) UpdatedAt(ctx context.Context, obj *db.User) (*time.Time, error) {
+func (r *userResolver) UpdatedAt(ctx context.Context, obj *models.User) (*time.Time, error) {
 	return &obj.UpdatedAt.Time, nil
 }
 

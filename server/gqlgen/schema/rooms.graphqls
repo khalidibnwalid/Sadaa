@@ -1,4 +1,35 @@
-
 type Room {
-    
+    id: UUID!
+    serverId: UUID!
+    groupId: UUID!
+    type: String!
+    orderIndex: Int!
+    createdAt: Time!
+    updatedAt: Time!
+    # permissions: String!
 }
+
+input CreateRoomInput {
+    serverId: UUID!
+    groupId: UUID!
+    type: String!
+    orderIndex: Int!
+    name: String!
+    # permissions: String!
+}
+
+input UpdateRoomInput {
+    type: String
+    orderIndex: Int
+    name: String
+    # permissions: String
+}
+
+extend type Mutation {
+    createRoom(input: CreateRoomInput!): Room!
+    updateRoom(id: UUID!, input: UpdateRoomInput!): Room!
+}
+
+# extend type Query {
+#     # messages(roomId: UUID!, offset: Int!, limit: Int!): [Message!]!
+# }

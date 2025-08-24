@@ -75,6 +75,11 @@ func (r *serverMemberResolver) UpdatedAt(ctx context.Context, obj *models.Server
 	return &obj.UpdatedAt.Time, nil
 }
 
+// Server is the resolver for the server field.
+func (r *serverMemberResolver) Server(ctx context.Context, obj *models.ServerMember) (*models.Server, error) {
+	return models.NewServer(obj.Server), nil
+}
+
 // ServerMember returns graph.ServerMemberResolver implementation.
 func (r *Resolver) ServerMember() graph.ServerMemberResolver { return &serverMemberResolver{r} }
 

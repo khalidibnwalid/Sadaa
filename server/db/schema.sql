@@ -50,7 +50,8 @@ CREATE TABLE public.rooms (
     order_index integer,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    permissions jsonb
+    permissions jsonb,
+    name text NOT NULL
 );
 
 

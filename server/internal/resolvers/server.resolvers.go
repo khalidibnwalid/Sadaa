@@ -50,7 +50,7 @@ func (r *mutationResolver) CreateServer(ctx context.Context, input graph_models.
 }
 
 // Server is the resolver for the server field.
-func (r *queryResolver) Server(ctx context.Context, id uuid.UUID) (*db.Server, error) {
+func (r *queryResolver) Server(ctx context.Context, id uuid.UUID) (*models.Server, error) {
 	if !auth.IsAuthed(ctx) {
 		return nil, gqlerror.Wrap(ErrUnauthorized)
 	}
@@ -60,16 +60,16 @@ func (r *queryResolver) Server(ctx context.Context, id uuid.UUID) (*db.Server, e
 	if err != nil {
 		return nil, gqlerror.Wrap(ErrInternalServerError)
 	}
-	return server, nil
+	return models.NewServer(server), nil
 }
 
 // CreatedAt is the resolver for the createdAt field.
-func (r *serverResolver) CreatedAt(ctx context.Context, obj *db.Server) (*time.Time, error) {
+func (r *serverResolver) CreatedAt(ctx context.Context, obj *models.Server) (*time.Time, error) {
 	return &obj.CreatedAt.Time, nil
 }
 
 // UpdatedAt is the resolver for the updatedAt field.
-func (r *serverResolver) UpdatedAt(ctx context.Context, obj *db.Server) (*time.Time, error) {
+func (r *serverResolver) UpdatedAt(ctx context.Context, obj *models.Server) (*time.Time, error) {
 	return &obj.UpdatedAt.Time, nil
 }
 

@@ -2,10 +2,39 @@
 
 package graph_models
 
+import (
+	"github.com/google/uuid"
+)
+
+type CreateRoomInput struct {
+	ServerID   uuid.UUID `json:"serverId"`
+	GroupID    uuid.UUID `json:"groupId"`
+	Type       string    `json:"type"`
+	OrderIndex int32     `json:"orderIndex"`
+	Name       string    `json:"name"`
+}
+
+type CreateRoomsGroupInput struct {
+	ServerID   uuid.UUID `json:"serverId"`
+	Name       string    `json:"name"`
+	OrderIndex int32     `json:"orderIndex"`
+}
+
 type Mutation struct {
 }
 
 type Query struct {
+}
+
+type UpdateRoomInput struct {
+	Type       *string `json:"type,omitempty"`
+	OrderIndex *int32  `json:"orderIndex,omitempty"`
+	Name       *string `json:"name,omitempty"`
+}
+
+type UpdateRoomsGroupInput struct {
+	Name       *string `json:"name,omitempty"`
+	OrderIndex *int32  `json:"orderIndex,omitempty"`
 }
 
 type CreateServerInput struct {

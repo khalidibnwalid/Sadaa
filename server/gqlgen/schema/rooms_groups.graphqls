@@ -1,0 +1,33 @@
+type RoomsGroup {
+    id: UUID!
+    serverId: UUID!
+    name: String!
+    orderIndex: Int!
+    createdAt: Time!
+    updatedAt: Time!
+    # permissions: String!
+
+    rooms: [Room!]!
+}
+
+input CreateRoomsGroupInput {
+    serverId: UUID!
+    name: String!
+    orderIndex: Int!
+    # permissions: String!
+}
+
+input UpdateRoomsGroupInput {
+    name: String
+    orderIndex: Int
+    # permissions: String
+}
+
+extend type Mutation {
+    createRoomsGroup(input: CreateRoomsGroupInput!): RoomsGroup!
+    updateRoomsGroup(id: UUID!, input: UpdateRoomsGroupInput!): RoomsGroup!
+}
+
+extend type Query {
+    roomsGroups(serverId: UUID!): [RoomsGroup!]!
+}

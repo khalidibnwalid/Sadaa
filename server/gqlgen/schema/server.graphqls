@@ -4,6 +4,8 @@ type Server {
   coverUrl: String
   createdAt: Time!
   updatedAt: Time!
+
+  roomsGroups: [RoomsGroup!]!
 }
 
 input createServerInput {

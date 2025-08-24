@@ -28,6 +28,7 @@ type Room struct {
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 	Permissions []byte             `json:"permissions"`
+	Name        string             `json:"name"`
 }
 
 type RoomsGroup struct {
