@@ -9,6 +9,37 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Message struct {
+	ID               uuid.UUID          `json:"id"`
+	AuthorID         uuid.UUID          `json:"author_id"`
+	RoomID           uuid.UUID          `json:"room_id"`
+	ReplyToMessageID pgtype.UUID        `json:"reply_to_message_id"`
+	Content          string             `json:"content"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
+}
+
+type Room struct {
+	ID          uuid.UUID          `json:"id"`
+	ServerID    uuid.UUID          `json:"server_id"`
+	GroupID     pgtype.UUID        `json:"group_id"`
+	Type        string             `json:"type"`
+	OrderIndex  *int32             `json:"order_index"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	Permissions []byte             `json:"permissions"`
+}
+
+type RoomsGroup struct {
+	ID          uuid.UUID          `json:"id"`
+	ServerID    uuid.UUID          `json:"server_id"`
+	Name        string             `json:"name"`
+	Permissions []byte             `json:"permissions"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	OrderIndex  int32              `json:"order_index"`
+}
+
 type Server struct {
 	ID        uuid.UUID          `json:"id"`
 	Name      string             `json:"name"`
@@ -35,4 +66,11 @@ type User struct {
 	AvatarUrl      *string            `json:"avatar_url"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+}
+
+type UserRoomRead struct {
+	UserID        uuid.UUID          `json:"user_id"`
+	RoomID        uuid.UUID          `json:"room_id"`
+	LastReadMsgID pgtype.UUID        `json:"last_read_msg_id"`
+	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
 }

@@ -66,5 +66,5 @@ func GetDbQueries(t *testing.T) *db.Queries {
 // will truncate all tables in the database
 func truncateAllTables(t *testing.T, pool *pgxpool.Pool) {
 	t.Helper()
-	pool.Exec(context.Background(), "TRUNCATE TABLE (users, servers, server_members) CASCADE")
+	pool.Exec(context.Background(), "TRUNCATE TABLE (users, servers, server_members, rooms_groups, rooms, user_room_reads, messages) CASCADE")
 }
