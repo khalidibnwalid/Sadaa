@@ -45,7 +45,7 @@ ALTER TABLE public.messages OWNER TO admin;
 CREATE TABLE public.rooms (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     server_id uuid NOT NULL,
-    group_id uuid,
+    group_id uuid NOT NULL,
     type character varying(50) NOT NULL,
     order_index integer,
     created_at timestamp with time zone DEFAULT now() NOT NULL,

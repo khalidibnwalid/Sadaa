@@ -10,14 +10,33 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/graph"
 	graph_models "github.com/khalidibnwalid/sadaa/server/internal/graph/models"
 	"github.com/khalidibnwalid/sadaa/server/internal/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/services/auth"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // CreateRoom is the resolver for the createRoom field.
 func (r *mutationResolver) CreateRoom(ctx context.Context, input graph_models.CreateRoomInput) (*models.Room, error) {
-	panic(fmt.Errorf("not implemented: CreateRoom - createRoom"))
+	if !auth.IsAuthed(ctx) {
+		return nil, gqlerror.Wrap(ErrUnauthorized)
+	}
+
+	room, err := r.DB.CreateRoom(ctx, db.CreateRoomParams{
+		Name:       input.Name,
+		GroupID:    input.GroupID,
+		ServerID:   input.ServerID,
+		Type:       input.Type,
+		OrderIndex: &input.OrderIndex,
+	})
+
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+
+	return models.NewRoom(room), nil
 }
 
 // UpdateRoom is the resolver for the updateRoom field.
@@ -25,9 +44,16 @@ func (r *mutationResolver) UpdateRoom(ctx context.Context, id uuid.UUID, input g
 	panic(fmt.Errorf("not implemented: UpdateRoom - updateRoom"))
 }
 
-// GroupID is the resolver for the groupId field.
-func (r *roomResolver) GroupID(ctx context.Context, obj *models.Room) (uuid.UUID, error) {
-	panic(fmt.Errorf("not implemented: GroupID - groupId"))
+// Room is the resolver for the room field.
+func (r *queryResolver) Room(ctx context.Context, id uuid.UUID) (*models.Room, error) {
+	if !auth.IsAuthed(ctx) {
+		return nil, gqlerror.Wrap(ErrUnauthorized)
+	}
+	room, err := r.DB.GetRoomById(ctx, id)
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+	return models.NewRoom(room), nil
 }
 
 // CreatedAt is the resolver for the createdAt field.

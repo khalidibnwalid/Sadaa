@@ -23,3 +23,9 @@ func NewRoomsGroup(roomsGroup *db.RoomsGroup, rooms ...[]*Room) *RoomsGroup {
 		Rooms:      _rooms,
 	}
 }
+
+func NewRoom(room *db.Room) *Room {
+	return &Room{
+		Room: room,
+	}
+}

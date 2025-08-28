@@ -22,7 +22,7 @@ type Message struct {
 type Room struct {
 	ID          uuid.UUID          `json:"id"`
 	ServerID    uuid.UUID          `json:"server_id"`
-	GroupID     pgtype.UUID        `json:"group_id"`
+	GroupID     uuid.UUID          `json:"group_id"`
 	Type        string             `json:"type"`
 	OrderIndex  *int32             `json:"order_index"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`

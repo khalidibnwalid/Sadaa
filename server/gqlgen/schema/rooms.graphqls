@@ -2,6 +2,7 @@ type Room {
     id: UUID!
     serverId: UUID!
     groupId: UUID!
+    name: String!
     type: String!
     orderIndex: Int!
     createdAt: Time!
@@ -30,6 +31,6 @@ extend type Mutation {
     updateRoom(id: UUID!, input: UpdateRoomInput!): Room!
 }
 
-# extend type Query {
-#     # messages(roomId: UUID!, offset: Int!, limit: Int!): [Message!]!
-# }
+extend type Query {
+    room(id: UUID!): Room
+}

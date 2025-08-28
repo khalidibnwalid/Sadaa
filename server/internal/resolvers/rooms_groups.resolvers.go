@@ -48,7 +48,7 @@ func (r *queryResolver) RoomsGroups(ctx context.Context, serverID uuid.UUID) ([]
 		return nil, gqlerror.Wrap(ErrUnauthorized)
 	}
 
-	// TODO, Update query to include all rooms of all 
+	// TODO, Update query to include all rooms of all
 	roomsgroups, err := r.DB.GetRoomsGroupByServerID(ctx, serverID)
 	if err != nil {
 		return nil, gqlerror.Wrap(ErrInternalServerError)
