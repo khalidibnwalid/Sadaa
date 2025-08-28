@@ -12,3 +12,14 @@ type RoomsGroup struct {
 	*db.RoomsGroup
 	Rooms []*Room
 }
+
+func NewRoomsGroup(roomsGroup *db.RoomsGroup, rooms ...[]*Room) *RoomsGroup {
+	_rooms := make([]*Room, 0)
+	if len(rooms) > 0 {
+		_rooms = rooms[0]
+	}
+	return &RoomsGroup{
+		RoomsGroup: roomsGroup,
+		Rooms:      _rooms,
+	}
+}

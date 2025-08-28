@@ -10,14 +10,31 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/graph"
 	graph_models "github.com/khalidibnwalid/sadaa/server/internal/graph/models"
 	"github.com/khalidibnwalid/sadaa/server/internal/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/services/auth"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // CreateRoomsGroup is the resolver for the createRoomsGroup field.
 func (r *mutationResolver) CreateRoomsGroup(ctx context.Context, input graph_models.CreateRoomsGroupInput) (*models.RoomsGroup, error) {
-	panic(fmt.Errorf("not implemented: CreateRoomsGroup - createRoomsGroup"))
+	if ok := auth.IsAuthed(ctx); !ok {
+		return nil, gqlerror.Wrap(ErrUnauthorized)
+	}
+
+	roomsGroup, err := r.DB.CreateRoomsGroup(ctx, db.CreateRoomsGroupParams{
+		ServerID:   input.ServerID,
+		Name:       input.Name,
+		OrderIndex: input.OrderIndex,
+	})
+
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+
+	return models.NewRoomsGroup(roomsGroup), nil
 }
 
 // UpdateRoomsGroup is the resolver for the updateRoomsGroup field.
@@ -27,7 +44,22 @@ func (r *mutationResolver) UpdateRoomsGroup(ctx context.Context, id uuid.UUID, i
 
 // RoomsGroups is the resolver for the roomsGroups field.
 func (r *queryResolver) RoomsGroups(ctx context.Context, serverID uuid.UUID) ([]*models.RoomsGroup, error) {
-	panic(fmt.Errorf("not implemented: RoomsGroups - roomsGroups"))
+	if ok := auth.IsAuthed(ctx); !ok {
+		return nil, gqlerror.Wrap(ErrUnauthorized)
+	}
+
+	// TODO, Update query to include all rooms of all 
+	roomsgroups, err := r.DB.GetRoomsGroupByServerID(ctx, serverID)
+	if err != nil {
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+
+	result := make([]*models.RoomsGroup, len(roomsgroups))
+	for i, r := range roomsgroups {
+		result[i] = models.NewRoomsGroup(r)
+	}
+
+	return result, nil
 }
 
 // CreatedAt is the resolver for the createdAt field.
