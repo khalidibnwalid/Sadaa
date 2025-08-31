@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/graph"
 	graph_models "github.com/khalidibnwalid/sadaa/server/internal/graph/models"
@@ -34,7 +35,7 @@ func (r *mutationResolver) CreateRoomsGroup(ctx context.Context, input graph_mod
 		return nil, gqlerror.Wrap(ErrInternalServerError)
 	}
 
-	return models.NewRoomsGroup(roomsGroup), nil
+	return models.NewRoomsGroup(roomsGroup, []*db.Room{}), nil
 }
 
 // UpdateRoomsGroup is the resolver for the updateRoomsGroup field.
@@ -49,17 +50,37 @@ func (r *queryResolver) RoomsGroups(ctx context.Context, serverID uuid.UUID) ([]
 	}
 
 	// TODO, Update query to include all rooms of all
-	roomsgroups, err := r.DB.GetRoomsGroupByServerID(ctx, serverID)
+	roomsgroups, err := r.DB.GetRoomsGroupWithRoomsByServerID(ctx, serverID)
 	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, gqlerror.Wrap(ErrNotFound)
+		}
 		return nil, gqlerror.Wrap(ErrInternalServerError)
 	}
 
 	result := make([]*models.RoomsGroup, len(roomsgroups))
 	for i, r := range roomsgroups {
-		result[i] = models.NewRoomsGroup(r)
+		result[i] = models.NewRoomsGroup(&r.RoomsGroup, r.Rooms)
 	}
 
 	return result, nil
+}
+
+// RoomsGroup is the resolver for the roomsGroup field.
+func (r *queryResolver) RoomsGroup(ctx context.Context, id uuid.UUID) (*models.RoomsGroup, error) {
+	if ok := auth.IsAuthed(ctx); !ok {
+		return nil, gqlerror.Wrap(ErrUnauthorized)
+	}
+
+	roomsGroup, err := r.DB.GetRoomsGroupWithRoomsByID(ctx, id)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, gqlerror.Wrap(ErrNotFound)
+		}
+		return nil, gqlerror.Wrap(ErrInternalServerError)
+	}
+
+	return models.NewRoomsGroup(&roomsGroup.RoomsGroup, roomsGroup.Rooms), nil
 }
 
 // CreatedAt is the resolver for the createdAt field.

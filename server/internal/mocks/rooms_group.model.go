@@ -21,7 +21,7 @@ func NewRoomsGroup(t *testing.T, queries *db.Queries, serverID uuid.UUID) *model
 	if err != nil {
 		t.Fatalf("failed to create rooms group: %v", err)
 	}
-	return models.NewRoomsGroup(rg)
+	return models.NewRoomsGroup(rg, []*db.Room{})
 }
 
 // creates multiple RoomsGroups for a server

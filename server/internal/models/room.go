@@ -1,6 +1,8 @@
 package models
 
 import (
+	"encoding/json"
+
 	"github.com/khalidibnwalid/sadaa/server/internal/db"
 )
 
@@ -13,15 +15,23 @@ type RoomsGroup struct {
 	Rooms []*Room
 }
 
-func NewRoomsGroup(roomsGroup *db.RoomsGroup, rooms ...[]*Room) *RoomsGroup {
-	_rooms := make([]*Room, 0)
-	if len(rooms) > 0 {
-		_rooms = rooms[0]
+func NewRoomsGroup(roomsGroup *db.RoomsGroup, rooms []*db.Room) *RoomsGroup {
+	_rooms := make([]*Room, len(rooms))
+	for i := range rooms {
+		_rooms[i] = &Room{Room: rooms[i]}
 	}
 	return &RoomsGroup{
 		RoomsGroup: roomsGroup,
 		Rooms:      _rooms,
 	}
+}
+
+func RoomsFromBytes(data []byte) ([]*Room, error) {
+	var rooms []*Room
+	if err := json.Unmarshal(data, &rooms); err != nil {
+		return nil, err
+	}
+	return rooms, nil
 }
 
 func NewRoom(room *db.Room) *Room {

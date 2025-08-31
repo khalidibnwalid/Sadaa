@@ -30,4 +30,5 @@ extend type Mutation {
 
 extend type Query {
     roomsGroups(serverId: UUID!): [RoomsGroup!]!
+    roomsGroup(id: UUID!): RoomsGroup!
 }

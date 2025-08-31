@@ -83,10 +83,53 @@ func TestRoomsGroupsQuery(t *testing.T) {
 	db := mocks.GetDbQueries(t)
 	gql := mocks.NewGqlClient(t)
 	user := mocks.NewUser(t, db)
-	server := mocks.NewServer(t, db, user.User.ID)
-	mocks.NewRoomsGroups(t, db, server.ID, 3)
+
+	t.Run("should get rooms field in roomsGroups when authed", func(t *testing.T) {
+		server := mocks.NewServer(t, db, user.User.ID)
+		groups := mocks.NewRoomsGroups(t, db, server.ID, 3)
+		for _, group := range groups {
+			mocks.NewRooms(t, db, group.RoomsGroup.ID, server.ID, 2)
+		}
+
+		var resp struct {
+			RoomsGroups []struct {
+				ID    string
+				Name  string
+				Rooms []struct {
+					ID      string
+					Name    string
+					GroupID string
+				}
+			}
+		}
+		query := `
+				query RoomsGroups($serverId: UUID!) {
+					roomsGroups(serverId: $serverId) {
+						id
+						name
+						rooms { id name groupId }
+					}
+				}
+			`
+		ctx := user.InjectAuthContext(t, t.Context())
+		err := gql.Client.Post(query, &resp, client.Var("serverId", server.ID.String()), gql.WithContext(ctx))
+
+		assert.NoError(t, err)
+		assert.Len(t, resp.RoomsGroups, 3)
+		for _, group := range resp.RoomsGroups {
+			assert.Len(t, group.Rooms, 2)
+			for _, room := range group.Rooms {
+				assert.NotEmpty(t, room.ID)
+				assert.NotEmpty(t, room.Name)
+				assert.Equal(t, room.GroupID, group.ID, "rooms should belong to the group")
+			}
+		}
+	})
 
 	t.Run("should get rooms groups when authed", func(t *testing.T) {
+		server := mocks.NewServer(t, db, user.User.ID)
+		mocks.NewRoomsGroups(t, db, server.ID, 3)
+
 		var resp struct {
 			RoomsGroups []struct {
 				ID   string
@@ -94,13 +137,13 @@ func TestRoomsGroupsQuery(t *testing.T) {
 			}
 		}
 		query := `
-			query RoomsGroups($serverId: UUID!) {
-				roomsGroups(serverId: $serverId) {
-					id
-					name
+				query RoomsGroups($serverId: UUID!) {
+					roomsGroups(serverId: $serverId) {
+						id
+						name
+					}
 				}
-			}
-		`
+			`
 		ctx := user.InjectAuthContext(t, t.Context())
 		err := gql.Client.Post(query, &resp, client.Var("serverId", server.ID.String()), gql.WithContext(ctx))
 
@@ -109,19 +152,120 @@ func TestRoomsGroupsQuery(t *testing.T) {
 	})
 
 	t.Run("should fail when unauthorized", func(t *testing.T) {
+		server := mocks.NewServer(t, db, user.User.ID)
+		mocks.NewRoomsGroups(t, db, server.ID, 3)
+
 		var resp struct {
 			RoomsGroups []struct {
 				ID string
 			}
 		}
 		query := `
-			query RoomsGroups($serverId: UUID!) {
-				roomsGroups(serverId: $serverId) {
-					id
+				query RoomsGroups($serverId: UUID!) {
+					roomsGroups(serverId: $serverId) {
+						id
+					}
+				}
+			`
+		err := gql.Client.Post(query, &resp, client.Var("serverId", server.ID.String()))
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), resolvers.ErrUnauthorized.Error())
+	})
+}
+
+func TestRoomsGroupQuery(t *testing.T) {
+	db := mocks.GetDbQueries(t)
+	gql := mocks.NewGqlClient(t)
+	user := mocks.NewUser(t, db)
+
+	t.Run("should get rooms field in roomsGroup by id when authed", func(t *testing.T) {
+		server := mocks.NewServer(t, db, user.User.ID)
+		group := mocks.NewRoomsGroup(t, db, server.ID)
+		mocks.NewRooms(t, db, group.RoomsGroup.ID, server.ID, 2)
+
+		var resp struct {
+			RoomsGroup struct {
+				ID    string
+				Name  string
+				Rooms []struct {
+					ID   string
+					Name string
+					GroupID string
 				}
 			}
-		`
-		err := gql.Client.Post(query, &resp, client.Var("serverId", server.ID.String()))
+		}
+		query := `
+				query RoomsGroup($id: UUID!) {
+					roomsGroup(id: $id) {
+						id
+						name
+						rooms { id name groupId }
+					}
+				}
+			`
+		ctx := user.InjectAuthContext(t, t.Context())
+		err := gql.Client.Post(query, &resp, client.Var("id", group.RoomsGroup.ID.String()), gql.WithContext(ctx))
+
+		assert.NoError(t, err)
+		assert.Equal(t, group.RoomsGroup.ID.String(), resp.RoomsGroup.ID)
+		assert.Len(t, resp.RoomsGroup.Rooms, 2)
+		for _, room := range resp.RoomsGroup.Rooms {
+			assert.NotEmpty(t, room.ID)
+			assert.NotEmpty(t, room.Name)
+			assert.Equal(t, room.GroupID, group.RoomsGroup.ID.String(), "rooms should belong to the group")
+		}
+	})
+
+	t.Run("should get empty rooms if none exist", func(t *testing.T) {
+		server := mocks.NewServer(t, db, user.User.ID)
+		group := mocks.NewRoomsGroup(t, db, server.ID)
+
+		var resp struct {
+			RoomsGroup struct {
+				ID    string
+				Name  string
+				Rooms []struct {
+					ID   string
+					Name string
+				}
+			}
+		}
+		query := `
+				query RoomsGroup($id: UUID!) {
+					roomsGroup(id: $id) {
+						id
+						name
+						rooms { id name }
+					}
+				}
+			`
+		ctx := user.InjectAuthContext(t, t.Context())
+		err := gql.Client.Post(query, &resp, client.Var("id", group.RoomsGroup.ID.String()), gql.WithContext(ctx))
+
+		assert.NoError(t, err)
+		assert.Equal(t, group.RoomsGroup.ID.String(), resp.RoomsGroup.ID)
+		assert.Len(t, resp.RoomsGroup.Rooms, 0)
+	})
+
+	t.Run("should fail when unauthorized", func(t *testing.T) {
+		server := mocks.NewServer(t, db, user.User.ID)
+		groups := mocks.NewRoomsGroups(t, db, server.ID, 1)
+		group := groups[0]
+
+		var resp struct {
+			RoomsGroup struct {
+				ID string
+			}
+		}
+		query := `
+				query RoomsGroup($id: UUID!) {
+					roomsGroup(id: $id) {
+						id
+					}
+				}
+			`
+		err := gql.Client.Post(query, &resp, client.Var("id", group.RoomsGroup.ID.String()))
 
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), resolvers.ErrUnauthorized.Error())

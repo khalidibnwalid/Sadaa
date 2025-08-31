@@ -21,21 +21,3 @@ limit 1;
 Select * 
 from rooms_groups
 where server_id = $1;
-
--- name: GetRoomsGroupWithRoomsByServerID :many
--- Select sqlc.embed(rooms_groups), sqlc.embed(rooms) 
--- from rooms_groups 
--- left join rooms on rooms.group_id = rooms_groups.id
--- where rooms_groups.server_id = $1;
-
--- -- name: GetRoomsGroupWithRoomsByServerID :many
--- SELECT 
---   rooms_groups.*,
---   COALESCE(
---     json_agg(rooms) FILTER (WHERE rooms.id IS NOT NULL),
---     '[]'
---   ) AS rooms
--- FROM rooms_groups
--- LEFT JOIN rooms ON rooms.group_id = rooms_groups.id
--- WHERE rooms_groups.server_id = $1
--- GROUP BY rooms_groups.id;
