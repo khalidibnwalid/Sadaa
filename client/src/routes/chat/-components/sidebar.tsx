@@ -1,5 +1,6 @@
 import Button from "@/components/ui/Button"
-import { useLocation, useRouteContext } from "@tanstack/react-router"
+import type { FileRoutesByTo } from "@/routeTree.gen"
+import { useLocation, useNavigate, useRouteContext } from "@tanstack/react-router"
 import { PiChatCircleFill, PiPlus } from "react-icons/pi"
 import { twJoin } from 'tailwind-merge'
 
@@ -17,15 +18,20 @@ export default function ChatSidebar() {
                 >
                     <PiChatCircleFill size={26} />
                 </SidebarButton>
-                {servers.map(({ server }) => (
-                    <li key={server.id}>
-                        <SidebarButton
-                            text={server.name}
-                            img={server.coverUrl}
-                            isActive={location.pathname === `/chat/${server.id}`}
-                        />
-                    </li>
-                ))}
+                {servers.map(({ server }) => {
+                    console.log(server.id)
+                    return (
+                        <li key={server.id}>
+                            <SidebarButton
+                                link="/chat/$serverId"
+                                serverId={server.id}
+                                text={server.name}
+                                img={server.coverUrl || undefined}
+                                isActive={location.pathname === `/chat/${server.id}`}
+                            />
+                        </li>
+                    )
+                })}
                 <SidebarButton
                     text="add server"
                 >
@@ -46,17 +52,23 @@ function SidebarButton({
     img,
     isActive,
     className,
-    children
+    children,
+    link,
+    serverId
 }: {
     text: string
     img?: string
     isActive?: boolean
     className?: string
     children?: React.ReactNode
-    // link?: keyof FileRoutesByTo
+    link?: keyof FileRoutesByTo
+    // not typesafe, but :D
+    serverId?: string
 }) {
+    const navigate = useNavigate()
     return (
         <Button
+            onClick={() => link && navigate({ to: link, params: { serverId } })}
             variant="filledOutline"
             className={twJoin(
                 'relative group font-bold text-xl size-14 flex items-center justify-center rounded-3xl px-0 py-0',

@@ -18,12 +18,40 @@ export type Scalars = {
   UUID: { input: any; output: any; }
 };
 
+export type CreateRoomInput = {
+  groupId: Scalars['UUID']['input'];
+  name: Scalars['String']['input'];
+  orderIndex: Scalars['Int']['input'];
+  serverId: Scalars['UUID']['input'];
+  type: Scalars['String']['input'];
+};
+
+export type CreateRoomsGroupInput = {
+  name: Scalars['String']['input'];
+  orderIndex: Scalars['Int']['input'];
+  serverId: Scalars['UUID']['input'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  createRoom: Room;
+  createRoomsGroup: RoomsGroup;
   createServer: ServerMember;
   joinServer: ServerMember;
   login?: Maybe<User>;
   signup?: Maybe<User>;
+  updateRoom: Room;
+  updateRoomsGroup: RoomsGroup;
+};
+
+
+export type MutationCreateRoomArgs = {
+  input: CreateRoomInput;
+};
+
+
+export type MutationCreateRoomsGroupArgs = {
+  input: CreateRoomsGroupInput;
 };
 
 
@@ -46,12 +74,42 @@ export type MutationSignupArgs = {
   input: SignupInput;
 };
 
+
+export type MutationUpdateRoomArgs = {
+  id: Scalars['UUID']['input'];
+  input: UpdateRoomInput;
+};
+
+
+export type MutationUpdateRoomsGroupArgs = {
+  id: Scalars['UUID']['input'];
+  input: UpdateRoomsGroupInput;
+};
+
 export type Query = {
   __typename?: 'Query';
+  room?: Maybe<Room>;
+  roomsGroup: RoomsGroup;
+  roomsGroups: Array<RoomsGroup>;
   server?: Maybe<Server>;
   serverMembership?: Maybe<ServerMember>;
   serverMemberships: Array<ServerMember>;
   user?: Maybe<User>;
+};
+
+
+export type QueryRoomArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+export type QueryRoomsGroupArgs = {
+  id: Scalars['UUID']['input'];
+};
+
+
+export type QueryRoomsGroupsArgs = {
+  serverId: Scalars['UUID']['input'];
 };
 
 
@@ -64,12 +122,36 @@ export type QueryServerMembershipArgs = {
   serverId: Scalars['UUID']['input'];
 };
 
-export type Server = {
-  __typename?: 'Server';
-  coverUrl: Scalars['String']['output'];
+export type Room = {
+  __typename?: 'Room';
+  createdAt: Scalars['Time']['output'];
+  groupId: Scalars['UUID']['output'];
+  id: Scalars['UUID']['output'];
+  name: Scalars['String']['output'];
+  orderIndex: Scalars['Int']['output'];
+  serverId: Scalars['UUID']['output'];
+  type: Scalars['String']['output'];
+  updatedAt: Scalars['Time']['output'];
+};
+
+export type RoomsGroup = {
+  __typename?: 'RoomsGroup';
   createdAt: Scalars['Time']['output'];
   id: Scalars['UUID']['output'];
   name: Scalars['String']['output'];
+  orderIndex: Scalars['Int']['output'];
+  rooms: Array<Room>;
+  serverId: Scalars['UUID']['output'];
+  updatedAt: Scalars['Time']['output'];
+};
+
+export type Server = {
+  __typename?: 'Server';
+  coverUrl?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Time']['output'];
+  id: Scalars['UUID']['output'];
+  name: Scalars['String']['output'];
+  roomsGroups: Array<RoomsGroup>;
   updatedAt: Scalars['Time']['output'];
 };
 
@@ -82,6 +164,17 @@ export type ServerMember = {
   serverId: Scalars['UUID']['output'];
   updatedAt: Scalars['Time']['output'];
   userId: Scalars['UUID']['output'];
+};
+
+export type UpdateRoomInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  orderIndex?: InputMaybe<Scalars['Int']['input']>;
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateRoomsGroupInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  orderIndex?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type User = {
@@ -132,7 +225,7 @@ export type UserQuery = { __typename?: 'Query', user?: { __typename?: 'User', id
 export type ServerMembershipsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ServerMembershipsQuery = { __typename?: 'Query', serverMemberships: Array<{ __typename?: 'ServerMember', userId: any, serverId: any, nickname?: string | null, server: { __typename?: 'Server', id: any, name: string, coverUrl: string } }> };
+export type ServerMembershipsQuery = { __typename?: 'Query', serverMemberships: Array<{ __typename?: 'ServerMember', userId: any, serverId: any, nickname?: string | null, server: { __typename?: 'Server', id: any, name: string, coverUrl?: string | null } }> };
 
 
 export const SignUpDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"SignUp"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"signupInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"signup"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"username"}}]}}]}}]} as unknown as DocumentNode<SignUpMutation, SignUpMutationVariables>;

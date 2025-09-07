@@ -1,8 +1,8 @@
 
 export interface Server {
-    id: number
+    id: string
     name: string
-    coverUrl: string
+    coverUrl?: string | null
 }
 
 export interface ServerMembership {
