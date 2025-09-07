@@ -1,12 +1,15 @@
 import Button from "@/components/ui/Button"
 import type { FileRoutesByTo } from "@/routeTree.gen"
+import { useLiveQuery } from "@tanstack/react-db"
 import { useLocation, useNavigate, useRouteContext } from "@tanstack/react-router"
 import { PiChatCircleFill, PiPlus } from "react-icons/pi"
 import { twJoin } from 'tailwind-merge'
 
 export default function ChatSidebar() {
-    const { auth, servers } = useRouteContext({ from: '/chat' })
+    const { auth, serversCollection } = useRouteContext({ from: '/chat' })
     const location = useLocation()
+
+    const { data: servers } = useLiveQuery(serversCollection)
 
     return (
         <nav className='h-screen flex flex-col p-2'>

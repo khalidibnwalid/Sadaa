@@ -1,6 +1,5 @@
-import { SERVER_MEMBERSHIPS_QUERY } from '@/libs/graphql/server';
+import { createServersCollection } from '@/libs/collections/servers';
 import type { RouterContext } from '@/main';
-import type { ServerMembership } from '@/types/servers';
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router';
 import Sidebar from './-components/sidebar';
 
@@ -13,18 +12,9 @@ export const Route = createFileRoute('/chat')({
             })
         }
 
-        let servers: ServerMembership[] = []
-        try {
-            servers = (await graphqlClient.request(SERVER_MEMBERSHIPS_QUERY)).serverMemberships satisfies ServerMembership[]
-            queryClient.setQueryData([SERVER_MEMBERSHIPS_QUERY], servers)
-
-        } catch (error) {
-            console.error(error);
-        }
-
         return {
             auth: auth as NonNullable<RouterContext['auth']>,
-            servers,
+            serversCollection: createServersCollection(graphqlClient, queryClient),
         }
     }
 })
