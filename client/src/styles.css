@@ -16,26 +16,26 @@ code {
 
 
 :root {
-  --background: #f0f1ff;
-  --foreground: #000919;
+  --background: #f0f0f0;
+  --foreground: #2f2f2f;
   --primary: #1c1c1c;
   --primary-foreground: #ffffff;
   --muted: #dfe0f2;
-  --muted-foreground: #6c757d;
+  --muted-foreground: #828282;
   --muted-danger: #e15e5e;
   --border: #c9c9c9;
   --duration-transition: 2s;
 }
 
 .dark {
-  --background: #000919;
+  --background: #131313;
   --foreground: #f2f0ff;
   --primary: #e0e0e0;
   --primary-foreground: #1c1c1c;
-  --muted: #1e273a;
-  --muted-foreground: #d4d6f7;
+  --muted: #292929;
+  --muted-foreground: #cecece;
   --muted-danger: #e68686;
-  --border: #393e4d;
+  --border: #2f3137;
 }
 
 @theme inline {

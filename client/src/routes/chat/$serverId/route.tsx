@@ -54,7 +54,7 @@ export const Route = createFileRoute('/chat/$serverId')({
 function RouteComponent() {
   return (
     <div className='flex flex-row'>
-      <div className=' w-3xs text-muted-foreground py-4 px-2 bg-radial to-muted/20 space-y-2'>
+      <div className=' w-3xs text-muted-foreground py-4 px-2 bg-muted/20 space-y-2'>
         <div className='flex flex-col bg-muted-foreground text-background p-3 rounded-xl'>
           <span className='text-xl font-bold'>SERVER_NAME</span>
           {/* <span className='text-xs text-muted-foreground'>#{MOCK_ITEMS.rootNode.name}</span> */}
