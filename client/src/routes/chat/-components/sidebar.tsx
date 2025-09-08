@@ -7,9 +7,8 @@ import { twJoin } from 'tailwind-merge'
 
 export default function ChatSidebar() {
     const { auth, serversCollection } = useRouteContext({ from: '/chat' })
-    const location = useLocation()
-
     const { data: servers } = useLiveQuery(serversCollection)
+    const location = useLocation()
 
     return (
         <nav className='h-screen flex flex-col p-2'>
@@ -22,7 +21,6 @@ export default function ChatSidebar() {
                     <PiChatCircleFill size={26} />
                 </SidebarButton>
                 {servers.map(({ server }) => {
-                    console.log(server.id)
                     return (
                         <li key={server.id}>
                             <SidebarButton

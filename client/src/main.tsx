@@ -14,7 +14,16 @@ import reportWebVitals from './reportWebVitals.ts'
 import './styles.css'
 import type { AuthUser } from './types/user.ts'
 
-const queryClient = new QueryClient()
+const QUERY_STALE_TIME = 1000 * 60 * 3 // 3 minutes
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: QUERY_STALE_TIME,
+    }
+  }
+})
+
 const graphqlClient = new GraphQLClient(
   env.VITE_GRAPHQL_URL,
   {

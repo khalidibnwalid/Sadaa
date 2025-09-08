@@ -17,12 +17,14 @@ type Documents = {
     "\n  mutation SignUp($input: signupInput!) {\n    signup(input: $input) {\n      id\n      email\n      username\n    }\n  }\n": typeof types.SignUpDocument,
     "\n  mutation Login($input: loginInput!) {\n    login(input: $input) {\n      id\n      email\n      username\n    }\n  }\n": typeof types.LoginDocument,
     "\n  query User {\n    user {\n      id\n      email\n      username\n    }\n  }\n": typeof types.UserDocument,
+    "\n\tquery RoomsGroups($serverId: UUID!) {\n\t\troomsGroups(serverId: $serverId) {\n\t\t\tid\n\t\t\tname\n\t\t\trooms { \n\t\t\t\tid \n\t\t\t\tname \n\t\t\t\tgroupId \n\t\t\t\ttype\n\t\t\t}\n\t\t}\n\t}\n": typeof types.RoomsGroupsDocument,
     "\n  query ServerMemberships {\n    serverMemberships {\n      userId\n      serverId\n      nickname\n      server { \n        id\n        name\n        coverUrl\n      }\n    }\n  }\n": typeof types.ServerMembershipsDocument,
 };
 const documents: Documents = {
     "\n  mutation SignUp($input: signupInput!) {\n    signup(input: $input) {\n      id\n      email\n      username\n    }\n  }\n": types.SignUpDocument,
     "\n  mutation Login($input: loginInput!) {\n    login(input: $input) {\n      id\n      email\n      username\n    }\n  }\n": types.LoginDocument,
     "\n  query User {\n    user {\n      id\n      email\n      username\n    }\n  }\n": types.UserDocument,
+    "\n\tquery RoomsGroups($serverId: UUID!) {\n\t\troomsGroups(serverId: $serverId) {\n\t\t\tid\n\t\t\tname\n\t\t\trooms { \n\t\t\t\tid \n\t\t\t\tname \n\t\t\t\tgroupId \n\t\t\t\ttype\n\t\t\t}\n\t\t}\n\t}\n": types.RoomsGroupsDocument,
     "\n  query ServerMemberships {\n    serverMemberships {\n      userId\n      serverId\n      nickname\n      server { \n        id\n        name\n        coverUrl\n      }\n    }\n  }\n": types.ServerMembershipsDocument,
 };
 
@@ -52,6 +54,10 @@ export function gql(source: "\n  mutation Login($input: loginInput!) {\n    logi
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query User {\n    user {\n      id\n      email\n      username\n    }\n  }\n"): (typeof documents)["\n  query User {\n    user {\n      id\n      email\n      username\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n\tquery RoomsGroups($serverId: UUID!) {\n\t\troomsGroups(serverId: $serverId) {\n\t\t\tid\n\t\t\tname\n\t\t\trooms { \n\t\t\t\tid \n\t\t\t\tname \n\t\t\t\tgroupId \n\t\t\t\ttype\n\t\t\t}\n\t\t}\n\t}\n"): (typeof documents)["\n\tquery RoomsGroups($serverId: UUID!) {\n\t\troomsGroups(serverId: $serverId) {\n\t\t\tid\n\t\t\tname\n\t\t\trooms { \n\t\t\t\tid \n\t\t\t\tname \n\t\t\t\tgroupId \n\t\t\t\ttype\n\t\t\t}\n\t\t}\n\t}\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
