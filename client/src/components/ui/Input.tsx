@@ -6,6 +6,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     error?: string
     subText?: string
     onValueChange?: (value: string) => void
+    ref?: React.Ref<HTMLInputElement>
 }
 
 export default function Input({ text, error, subText, className, onValueChange, ...props }: InputProps) {
@@ -14,7 +15,7 @@ export default function Input({ text, error, subText, className, onValueChange, 
     })
 
     return (
-        <Field.RootProvider className='space-y-1' value={value}>
+        <Field.RootProvider className='space-y-1 w-full' value={value}>
             <Field.Label className='block px-1 text-muted-foreground text-base'>{text}</Field.Label>
             <Field.Input
                 className={twMerge(

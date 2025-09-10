@@ -23,6 +23,7 @@ code {
   --muted: #dfe0f2;
   --muted-foreground: #828282;
   --muted-danger: #e15e5e;
+  --pure: #ffffff;
   --border: #c9c9c9;
   --duration-transition: 2s;
 }
@@ -35,6 +36,7 @@ code {
   --muted: #292929;
   --muted-foreground: #cecece;
   --muted-danger: #e68686;
+  --pure: #000000;
   --border: #2f3137;
 }
 
@@ -47,6 +49,7 @@ code {
   --color-muted-foreground: var(--muted-foreground);
   --color-muted-danger: var(--muted-danger);
   --color-border: var(--border);
+  --color-pure: var(--pure);
 
   --duration-colors: var(--duration-transition);
 

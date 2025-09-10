@@ -9,4 +9,6 @@ export interface RoomsGroup {
     id: string;
     name: string;
     rooms: Room[];
+    orderIndex: number;
+    serverId: string;
 }
