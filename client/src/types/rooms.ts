@@ -2,7 +2,8 @@ export interface Room {
     id: string;
     name: string;
     groupId: string;
-    type: string;
+    type: "TEXT" | "VOICE";
+    orderIndex: number;
 }
 
 export interface RoomsGroup {

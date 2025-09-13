@@ -5,11 +5,11 @@ import { gql } from "@/__generated__/gql";
 export const CREATE_ROOM_MUTATION = gql(`
 	mutation CreateRoom($input: CreateRoomInput!) {
 		createRoom(input: $input) {
-			orderIndex
-			groupId
-			serverId
-			type
+			id
 			name
+			groupId
+			orderIndex
+			type
 		}
 	}
 `);
@@ -21,10 +21,13 @@ export const ROOMS_GROUPS_QUERY = gql(`
 		roomsGroups(serverId: $serverId) {
 			id
 			name
+			orderIndex
+			serverId
 			rooms { 
 				id 
 				name 
 				groupId 
+				orderIndex
 				type
 			}
 		}

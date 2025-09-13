@@ -76,7 +76,7 @@ export function TreeBody({
                 </TreeView.Branch>
             ) : (
                 <TreeView.Item
-                    className="flex items-center gap-x-2 px-2 py-1 rounded-lg cursor-pointer hover:bg-muted-foreground hover:text-background transition-colors group"
+                    className="group flex items-center gap-x-2 justify-between px-2 py-1 rounded-lg cursor-pointer hover:bg-muted-foreground hover:text-background transition-colors group"
                     onClick={node.onClick}
                 >
                     {/* <TreeView.ItemIndicator /> */}
@@ -84,7 +84,9 @@ export function TreeBody({
                         {ItemIcon}
                         {node.name}
                     </TreeView.ItemText>
-                    {ItemEndContent}
+                    <span className='group-hover:opacity-100 opacity-0 transition-opacity'>
+                        {ItemEndContent}
+                    </span>
                 </TreeView.Item>
             )}
         </TreeView.NodeProvider>

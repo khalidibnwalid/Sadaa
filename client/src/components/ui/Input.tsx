@@ -1,5 +1,5 @@
 import { Field, useField } from '@ark-ui/react/field'
-import { twJoin, twMerge } from 'tailwind-merge'
+import { twMerge } from 'tailwind-merge'
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     text?: string
@@ -27,6 +27,7 @@ export default function Input({ text, error, subText, className, onValueChange, 
                     onValueChange?.(e.target.value)
                     props.onChange?.(e)
                 }}
+                autoComplete='off'
                 {...props}
             />
             <Field.HelperText>{subText}</Field.HelperText>
