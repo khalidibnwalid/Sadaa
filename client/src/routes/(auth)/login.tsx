@@ -1,8 +1,9 @@
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { useLoginMutation } from "@/libs/queries/auth";
+import Spinner from "@/components/ui/Spinner";
+import { useLoginMutation, USER_CACHE_KEY } from "@/libs/queries/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router';
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router';
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -16,10 +17,20 @@ export const Route = createFileRoute('/(auth)/login')({
 })
 
 function RouteComponent() {
-    const navigate = useNavigate();
+    const router = useRouter();
+    const navigate = Route.useNavigate();
+    const { queryClient } = Route.useRouteContext()
 
-    const { mutate: login } = useLoginMutation({
-        onSuccess: () => navigate({ to: '/chat' }),
+    const { mutate: login, isPending } = useLoginMutation({
+        onSuccess: (data) => {
+            queryClient.setQueryData([USER_CACHE_KEY], { user: data });
+            router.invalidate();
+            // setTimeout because chat page beforeLoad runs before the invalidate promise resolves
+            // which will cause the auth context to still be null, 
+            // thus we force it to run late in the event loop using setTimeout
+            // and for some reason using .then() or await won't work
+            setTimeout(() => navigate({ to: '/chat' }), 0);
+        },
         onError: (error) => {
             const msg = error.response.errors?.[0].message
             if (!msg) return
@@ -88,7 +99,13 @@ function RouteComponent() {
 
             <Button
                 type='submit'
+                disabled={isPending}
+                variant={isPending ? 'outline' : 'default'}
+                className="flex items-center justify-center gap-2"
             >
+                {isPending && (
+                    <Spinner variant="default" size="sm" />
+                )}
                 Login
             </Button>
             <Link to="/signup">

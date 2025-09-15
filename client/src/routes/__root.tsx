@@ -1,4 +1,3 @@
-import { USER_QUERY } from '@/libs/graphql/auth';
 import { type RouterContext } from '@/main';
 import { TanstackDevtools } from '@tanstack/react-devtools';
 import { ReactQueryDevtoolsPanel } from '@tanstack/react-query-devtools';

@@ -6,7 +6,7 @@ import Sidebar from './-components/sidebar';
 export const Route = createFileRoute('/chat')({
     component: RouteComponent,
     beforeLoad: async ({ context: { auth, graphqlClient, queryClient } }) => {
-        if (!auth) {
+        if (!auth?.user) {
             throw redirect({
                 to: '/login',
             })

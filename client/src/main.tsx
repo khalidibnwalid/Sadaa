@@ -7,6 +7,7 @@ import ReactDOM from 'react-dom/client'
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
+import Spinner from './components/ui/Spinner.tsx'
 import { env } from './env.ts'
 import { USER_QUERY } from './libs/graphql/auth.ts'
 import { USER_CACHE_KEY } from './libs/queries/auth.ts'
@@ -69,9 +70,11 @@ function App() {
     queryFn: async () => await graphqlClient.request(USER_QUERY),
   }, queryClient)
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
+  if (isLoading) return (
+    <div className='w-screen h-screen flex items-center justify-center'>
+      <Spinner variant='ping' size='lg' />
+    </div>
+  )
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -33,14 +33,12 @@ export default function ChatSidebar() {
                         </li>
                     )
                 })}
-                <SidebarButton
-                    text="add server"
-                >
+                <SidebarButton text="add server">
                     <PiPlus size={26} />
                 </SidebarButton>
                 <div className='flex-1' ></div>
                 <SidebarButton
-                    text={auth.user.username}
+                    text={auth?.user?.username}
                 >
                 </SidebarButton>
             </ul>
