@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  # website:
+  #   container_name: Sadaa Website
+  #   build: ./client
+  #   ports:
+  #     - "3000:3000"
+  #   restart: unless-stopped
+  #   environment:
+  #     - VITE_GRAPHQL_URL=http://localhost:8080/gql
+  #   depends_on:
+  #     - server
+  # server:
+  #   container_name: Sadaa Server
+  #   build: ./server
+  #   ports:
+  #     - "8080:8080"
+  #   restart: unless-stopped
+  #   environment:
+  #   [TODO]
+  #   depends_on:
+  #     - db
+
+volumes:
+  db_data: {}
