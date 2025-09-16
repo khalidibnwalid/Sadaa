@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/khalidibnwalid/sadaa/server/internal/app"
-	"github.com/khalidibnwalid/sadaa/server/internal/db"
+	"github.com/khalidibnwalid/sadaa/server/internal/platforms/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/router"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -37,7 +37,7 @@ func main() {
 
 	//
 	logger.Info("Connecting to database...")
-	pool, err := app.NewDBPool(ctx, config.DB)
+	pool, err := db.NewDBPool(ctx, config.DB)
 	if err != nil {
 		logger.Fatal("Failed to connect to database", zap.Error(err))
 	}

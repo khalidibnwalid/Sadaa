@@ -1,6 +1,6 @@
 package models
 
-import "github.com/khalidibnwalid/sadaa/server/internal/db"
+import "github.com/khalidibnwalid/sadaa/server/internal/platforms/db"
 
 // I already can Imagine the headache from having a model named `Server`
 type Server struct {

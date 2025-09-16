@@ -6,6 +6,7 @@ import (
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/khalidibnwalid/sadaa/server/internal/platforms/db"
 )
 
 const (
@@ -34,15 +35,9 @@ type Config struct {
 	Environment   string
 	IsDevelopment bool
 
-	DB *DBConfig
+	DB *db.DBConfig
 
 	Auth *AuthConfig
-}
-
-type DBConfig struct {
-	URL      string
-	MaxConns int32
-	MinConns int32
 }
 
 type AuthConfig struct {
@@ -61,7 +56,7 @@ func DefaultConfig() *Config {
 		Environment:   getEnv("ENVIRONMENT", EnvDevelopment),
 		IsDevelopment: getEnv("ENVIRONMENT", EnvDevelopment) == EnvDevelopment,
 
-		DB: &DBConfig{
+		DB: &db.DBConfig{
 			URL:      mustGetEnv("DB_URL"),
 			MinConns: int32(getIntEnv("DB_MIN_CONNS", defaultMinConns)),
 			MaxConns: int32(getIntEnv("DB_MAX_CONNS", defaultMaxConns)),

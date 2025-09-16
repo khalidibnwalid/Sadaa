@@ -4,7 +4,7 @@ import (
 	"net/mail"
 
 	"github.com/khalidibnwalid/sadaa/server/internal/crypto"
-	"github.com/khalidibnwalid/sadaa/server/internal/db"
+	"github.com/khalidibnwalid/sadaa/server/internal/platforms/db"
 )
 
 type User struct {

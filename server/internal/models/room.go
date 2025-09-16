@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 
-	"github.com/khalidibnwalid/sadaa/server/internal/db"
+	"github.com/khalidibnwalid/sadaa/server/internal/platforms/db"
 )
 
 type Room struct {

@@ -5,8 +5,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/khalidibnwalid/sadaa/server/internal/app"
-	"github.com/khalidibnwalid/sadaa/server/internal/db"
+	"github.com/khalidibnwalid/sadaa/server/internal/platforms/db"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -29,12 +28,12 @@ func GetDBPool(t *testing.T) *pgxpool.Pool {
 	mu.Lock()
 	var err error
 	if pool == nil {
-		config := &app.DBConfig{
+		config := &db.DBConfig{
 			URL:      uri,
 			MaxConns: 10,
 			MinConns: 1,
 		}
-		pool, err = app.NewDBPool(context.Background(), config)
+		pool, err = db.NewDBPool(context.Background(), config)
 		if err != nil {
 			t.Fatal(err)
 		}

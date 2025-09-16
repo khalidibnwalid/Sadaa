@@ -1,4 +1,4 @@
-package app
+package db
 
 import (
 	"context"
@@ -6,6 +6,12 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+type DBConfig struct {
+	URL      string
+	MaxConns int32
+	MinConns int32
+}
 
 func NewDBPool(ctx context.Context, config *DBConfig) (*pgxpool.Pool, error) {
 	poolConfig, err := pgxpool.ParseConfig(config.URL)

@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/khalidibnwalid/sadaa/server/internal/crypto"
-	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/platforms/db"
 )
 
 // creates and inserts a new RoomsGroup for testing

@@ -11,9 +11,9 @@ import (
 
 	"github.com/google/uuid"
 	pgx "github.com/jackc/pgx/v5"
-	"github.com/khalidibnwalid/sadaa/server/internal/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/graph"
 	"github.com/khalidibnwalid/sadaa/server/internal/models"
+	"github.com/khalidibnwalid/sadaa/server/internal/platforms/db"
 	"github.com/khalidibnwalid/sadaa/server/internal/services/auth"
 	"github.com/vektah/gqlparser/v2/gqlerror"
 )

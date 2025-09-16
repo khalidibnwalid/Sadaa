@@ -5,7 +5,7 @@ package resolvers
 
 import (
 	"github.com/khalidibnwalid/sadaa/server/internal/app"
-	"github.com/khalidibnwalid/sadaa/server/internal/db"
+	"github.com/khalidibnwalid/sadaa/server/internal/platforms/db"
 )
 
 // This file will not be regenerated automatically.
@@ -13,7 +13,7 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	DB *db.Queries
-	Auth *app.AuthConfig
+	DB            *db.Queries
+	Auth          *app.AuthConfig
 	IsDevelopment bool
 }
